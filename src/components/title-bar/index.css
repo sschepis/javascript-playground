@@ -1,8 +1,7 @@
-.titlebar {
-  width: 100%;
-  background-color: #FF4081;
-  border-radius: 5px 5px 0px 0px;
-}
+.button { 
+  all:unset;
+  border: 0;
+} 
 
 .grabbing {cursor: move;}
 

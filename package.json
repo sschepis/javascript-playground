@@ -14,7 +14,10 @@
     "@babel/preset-react": "^7.10.4",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
-    "parcel-plugin-static-files-copy": "^2.5.0"
+    "cssnano": "^4.1.10",
+    "parcel-plugin-inliner": "^1.0.14",
+    "parcel-plugin-static-files-copy": "^2.5.0",
+    "posthtml": "^0.13.2"
   },
   "scripts": {
     "start": "parcel index.html",
