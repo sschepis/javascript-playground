@@ -92,7 +92,7 @@ function debounce(func, wait, immediate) {
 class JsIncludesModal extends Component {
   render() {
     const onchange = (e) => {
-      if(this.props.jslibs !== e.target.text) this.props.jslibs = e.target.text
+      if(this.props.jsLibs !== e.target.value) this.props.jsLibs = e.target.value
     }
     return (<Modal
               {...this.props}
@@ -106,7 +106,7 @@ class JsIncludesModal extends Component {
               </Modal.Header>
               <Modal.Body>
                 <h4>Javascript libraries</h4>
-                <textarea onChange={onchange} value={this.props.jslibs} style={{width:'100%', height: 150}}></textarea>
+                <textarea onInput={this.props.handleChangeJs} style={{width:'100%', height: 150}}>{this.props.jsLibs}</textarea>
               </Modal.Body>
               <Modal.Footer><Button onClick={this.props.handleCloseJs}>Close</Button></Modal.Footer>
             </Modal>)
@@ -116,7 +116,7 @@ class JsIncludesModal extends Component {
 class CssIncludesModal extends Component {
   render() {
     const onchange = (e) => {
-      if(this.props.csslibs !== e.target.text) this.props.csslibs = e.target.text
+      if(this.props.cssLibs !== e.target.value) this.props.cssLibs = e.target.value
     }
     return (<Modal
               {...this.props}
@@ -130,7 +130,7 @@ class CssIncludesModal extends Component {
               </Modal.Header>
               <Modal.Body>
                 <h4>Javascript libraries</h4>
-                <textarea  onChange={onchange} value={this.props.csslibs} style={{width:'100%', height: 150}}></textarea>
+                <textarea  onInput={this.props.handleChangeCss} style={{width:'100%', height: 150}}>{this.props.cssLibs}</textarea>
               </Modal.Body>
               <Modal.Footer><Button onClick={this.props.handleCloseCss}>Close</Button></Modal.Footer>
             </Modal>)
@@ -142,8 +142,8 @@ export default class JavascriptPlayground extends Component {
     html : '',
     css : '',
     js : '',
-    jslibs: '',
-    csslibs: '',
+    jsLibs: '',
+    cssLibs: '',
     iframe: undefined,
     iframeDOM: undefined,
     showJs: false,
@@ -161,6 +161,14 @@ export default class JavascriptPlayground extends Component {
   }
   handleShowCss = () => this.setState({ showCss: true })
 
+  handleChangeJs = (e) => {
+    this.setState({ jsLibs: e.target.value })
+  }
+
+  handleChangeCss = (e) => {
+    this.setState({ cssLibs: e.target.value })
+  }
+
   textToArray(t) {
     return t.split('\n')
   } 
@@ -174,19 +182,13 @@ export default class JavascriptPlayground extends Component {
 
     this.oniFrameLoad = this.oniFrameLoad.bind(this)
     this.handleChange = this.handleChange.bind(this)
+    this.handleChangeJs = this.handleChangeJs.bind(this)
+    this.handleChangeCss = this.handleChangeCss.bind(this)
 
     this.state.iframe = (<Iframe
       src="empty.html"
       onLoad={this.oniFrameLoad}
     />)
-  }
-
-  headContent() {
-    return `
-    <script type='text/javascript'>${oframe_js}</script>
-    <script type='text/javascript'>${this.state.js}</script>
-    <style>${oframe_css + this.state.css}</style>
-    `
   }
 
   buildContentFrame(frame) {
@@ -217,11 +219,14 @@ export default class JavascriptPlayground extends Component {
         o.appendChild(script);
       }
     }
-    this.textToArray(this.state.jslibs).forEach((el) => createScriptElement(head, el))
-    this.textToArray(this.state.csslibs).forEach((el) => createStyleElement(head, el))
+    this.textToArray(this.state.jsLibs).forEach((el) => createScriptElement(head, el))
+    this.textToArray(this.state.cssLibs).forEach((el) => createStyleElement(head, el))
 
     createScriptElement(head, null, this.state.js )
     createStyleElement(head, null, this.state.css )
+
+    createScriptElement(head, null, oframe_js )
+    createStyleElement(head, null, oframe_css )
 
     body.innerHTML = this.state.html
   }
@@ -252,11 +257,13 @@ export default class JavascriptPlayground extends Component {
 
       <JsIncludesModal
         show={this.state.showJs}
-        csslibs={this.state.jslibs}
+        cssLibs={this.state.jsLibs}
+        onInput={this.handleChangeJs}
         onHide={this.handleCloseJs} />
       <CssIncludesModal
         show={this.state.showCss}
-        csslibs={this.state.csslibs}
+        cssLibs={this.state.cssLibs}
+        onInput={this.handleChangeCss}
         onHide={this.handleCloseCss} />
     
         <div className='grid-stack-item output-panel'
