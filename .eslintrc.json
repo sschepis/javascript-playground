@@ -1,0 +1,28 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module"
+  },
+  "env": {
+    "es6": true,
+    "browser": true,
+    "webextensions": true
+  },
+  "plugins": ["standard", "promise"],
+  "extends": ["standard", "standard-preact"],
+  "settings": {
+    "react": {
+      "pragma": "h"
+    }
+  },
+  "globals": {
+    "document": true,
+    "navigator": false,
+    "window": true,
+    "ME2P_DEBUG": true,
+    "ME2P_PLATFORM": true,
+    "ME2P_VERSION": true,
+    "EXTENSION_ID": true
+  },
+  "rules": {}
+}

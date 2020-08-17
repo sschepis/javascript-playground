@@ -1,0 +1,29 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gridstack@1.1.2/dist/gridstack.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+      crossorigin="anonymous"
+    />
+    <script src="//cdn.jsdelivr.net/npm/gridstack@1.1.2/dist/gridstack.all.js"></script>
+</head>
+
+<body>
+    <div id="app" style='width:100%;height:auto'></div>
+</body>
+
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function(event) { 
+    GridStack.init({
+      cellHeight: '50px',
+      column: '12',
+      animate: true 
+    })
+  });
+</script>
+<script src="src/index.js"></script>
+
+</html>
