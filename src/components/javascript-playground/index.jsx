@@ -1,12 +1,12 @@
 import React, { h, Component } from 'react'
-import { findDOMNode } from 'react-dom'
 import AceEditor from 'react-ace'
 import ActionBar from '../action-bar'
 import ConsolePanel from '../console-panel'
 import TitleBar from '../title-bar'
 import Iframe from '@trendmicro/react-iframe'
-import { Modal, Button } from 'react-bootstrap'
-import { render } from 'react-dom'
+
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 import classes from './index.css'
 
@@ -89,74 +89,91 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-function JsIncludesModal(props) {
-  return (
-    <Modal
-      {...props}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          js libraries
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>Javascript libraries</h4>
-        <textarea value={props.jsLibs} style={{width:'100%', height: 150}}></textarea>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onjsLibsHide}>Close</Button>
-      </Modal.Footer>
-    </Modal>
-  );
+class JsIncludesModal extends Component {
+  render() {
+    const onchange = (e) => {
+      if(this.props.jslibs !== e.target.text) this.props.jslibs = e.target.text
+    }
+    return (<Modal
+              {...this.props}
+              size="lg"
+              aria-labelledby="contained-modal-title-vcenter"
+              centered>
+              <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                  js libraries
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <h4>Javascript libraries</h4>
+                <textarea onChange={onchange} value={this.props.jslibs} style={{width:'100%', height: 150}}></textarea>
+              </Modal.Body>
+              <Modal.Footer><Button onClick={this.props.handleCloseJs}>Close</Button></Modal.Footer>
+            </Modal>)
+  }
 }
 
-
-function CssIncludesModal(props) {
-  return (
-    <Modal
-      {...props}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          css libraries
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>CSS libraries</h4>
-        <textarea value={props.cssLibs} style={{width:'100%', height: 150}}></textarea>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onCssLibsHide}>Close</Button>
-      </Modal.Footer>
-    </Modal>
-  );
+class CssIncludesModal extends Component {
+  render() {
+    const onchange = (e) => {
+      if(this.props.csslibs !== e.target.text) this.props.csslibs = e.target.text
+    }
+    return (<Modal
+              {...this.props}
+              size="lg"
+              aria-labelledby="contained-modal-title-vcenter"
+              centered>
+              <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                  js libraries
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <h4>Javascript libraries</h4>
+                <textarea  onChange={onchange} value={this.props.csslibs} style={{width:'100%', height: 150}}></textarea>
+              </Modal.Body>
+              <Modal.Footer><Button onClick={this.props.handleCloseCss}>Close</Button></Modal.Footer>
+            </Modal>)
+  }
 }
+
 export default class JavascriptPlayground extends Component {
   state = {
     html : '',
     css : '',
     js : '',
-    jsLibs: [],
-    cssLibs: [],
+    jslibs: '',
+    csslibs: '',
     iframe: undefined,
     iframeDOM: undefined,
-    showJsLibrariesModal: false,
-    showCssLibrariesModal: false
+    showJs: false,
+    showCss: false
   }
+
+  handleCloseJs = () => {
+    this.setState({ showJs: false })
+    this.buildContentFrame(this.state.iframeDOM)
+  }
+  handleShowJs = () => this.setState({ showJs: true })
+  handleCloseCss = () => {
+    this.setState({ showCss: false })
+    this.buildContentFrame(this.state.iframeDOM)
+  }
+  handleShowCss = () => this.setState({ showCss: true })
+
+  textToArray(t) {
+    return t.split('\n')
+  } 
+
+  arrayToText(t) {
+    return t.join('\n')
+  } 
 
   constructor (props) {
     super(props)
 
     this.oniFrameLoad = this.oniFrameLoad.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.handleJsLibsClick = this.handleJsLibsClick.bind(this)
-    this.handleCssLibsClick = this.handleCssLibsClick.bind(this)
-    this.handleJsLibsClose = this.handleJsLibsClose.bind(this)
-    this.handleCssLibsClose = this.handleCssLibsClose.bind(this)
 
     this.state.iframe = (<Iframe
       src="empty.html"
@@ -181,13 +198,31 @@ export default class JavascriptPlayground extends Component {
       script.type = "text/javascript";
       if(s) {
         script.src = s;
-      } else {
+        o.appendChild(script);
+      } else if (t) {
         script.text = t;
+        o.appendChild(script);
       }
-      o.appendChild(script);
     }
-    this.state.jsLibs.forEach((el) => createScriptElement(head, el))
+    const createStyleElement = (o, s, t) => {
+      var script;
+      if(t) {
+        script = document.createElement("style")
+        script.text = t
+        o.appendChild(script);
+      } else if(t) {
+        script = document.createElement("link")
+        script.rel = "stylesheet";
+        script.href = s;
+        o.appendChild(script);
+      }
+    }
+    this.textToArray(this.state.jslibs).forEach((el) => createScriptElement(head, el))
+    this.textToArray(this.state.csslibs).forEach((el) => createStyleElement(head, el))
+
     createScriptElement(head, null, this.state.js )
+    createStyleElement(head, null, this.state.css )
+
     body.innerHTML = this.state.html
   }
 
@@ -208,37 +243,22 @@ export default class JavascriptPlayground extends Component {
     self.setState(Object.assign(this.state, v))
   }
 
-  handleJsLibsClick(v) {
-    this.state.showJsLibrariesModal = true
-  }
-
-  handleCssLibsClick(v) {
-    this.state.showCssLibrariesModal = true
-  }
-
-  handleJsLibsClose(v) {
-    this.state.showJsLibrariesModal = false
-  }
-
-  handleCssLibsClose(v) {
-    this.state.showCssLibrariesModal = false
-  }
-
   render() {
+
     // findDOMNode
     return (
       <div>
-      <div>
-      <JsIncludesModal
-        show={this.state.showJsLibrariesModal}
-        onHide={this.handleJsLibsClose}
-      />
-      <CssIncludesModal
-        show={this.state.showCssLibrariesModal}
-        onHide={this.handleCssLibsClose}
-      />
-      </div>
       <div style={classes} className='grid-stack debug-console-app'>
+
+      <JsIncludesModal
+        show={this.state.showJs}
+        csslibs={this.state.jslibs}
+        onHide={this.handleCloseJs} />
+      <CssIncludesModal
+        show={this.state.showCss}
+        csslibs={this.state.csslibs}
+        onHide={this.handleCloseCss} />
+    
         <div className='grid-stack-item output-panel'
           data-gs-no-move='no'
           data-gs-no-resize='no'
@@ -305,7 +325,7 @@ export default class JavascriptPlayground extends Component {
           data-gs-height={3}
           data-gs-width={6} >
           <div className='editor-frame'>
-          <TitleBar  text='css' onArrowUp={this.handleCssLibsClick} />
+          <TitleBar  text='css' onArrowUp={this.handleShowCss} />
           <AceEditor
               value={this.state.css}
               width='100%'
@@ -328,7 +348,7 @@ export default class JavascriptPlayground extends Component {
           data-gs-height={3}
           data-gs-width={6} >
           <div className='editor-frame'>
-          <TitleBar  text='js' onArrowUp={this.handleJsLibsClick} />
+          <TitleBar  text='js' onClick={this.handleShowJs} onArrowUp={this.handleShowJs} />
           <AceEditor
               value={this.state.javascript}
               width='100%'
