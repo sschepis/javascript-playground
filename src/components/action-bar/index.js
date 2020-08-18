@@ -102,7 +102,7 @@ export default class ActionBar extends Component {
                   checked={so ? 'checked' : ''} /> output
               </div>
             </button>
-            <button className='toolbar-item'>
+            <button onClick={this.props.onGearClick} className='toolbar-item'>
               <div className='toolbar-item__icon'>
                 <i className='fa fa-gear' />
               </div>

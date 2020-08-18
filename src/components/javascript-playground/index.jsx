@@ -4,9 +4,10 @@ import ActionBar from '../action-bar'
 import ConsolePanel from '../console-panel'
 import TitleBar from '../title-bar'
 import Iframe from '@trendmicro/react-iframe'
+import classes from './index.css'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
-import classes from './index.css'
+
 
 import '/node_modules/ace-builds/src-min-noconflict/mode-javascript'
 import '/node_modules/ace-builds/src-min-noconflict/mode-typescript'
@@ -60,17 +61,114 @@ import '/node_modules/ace-builds/src-min-noconflict/theme-twilight'
 import '/node_modules/ace-builds/src-min-noconflict/theme-vibrant_ink'
 import '/node_modules/ace-builds/src-min-noconflict/theme-xcode'
 
-const ReactMarkdown = require('react-markdown')
+const framePropTypes = {
+  width: '100%',
+  height: '100%',
+  sandbox: {
+    allowForms: true,
+    allowModals: true,
+    allowPointerLock: false,
+    allowPopups: true,
+    allowSameOrigin: true,
+    allowScripts: true,
+    allowTopNavigation: false
+  }}
 
 const debounceTimes = {}
 const debounceTimerRefs = {}
 
+class JsIncludesModal extends Component {
+  render() {
+    return (<Modal
+      show={this.props.show}
+      onHide={this.props.onHide}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered>
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          js libraries
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <h4>Javascript libraries</h4>
+        <AceEditor
+          value={this.props.value}
+          width='100%'
+          height='300px'
+          mode='javascript'
+          theme='monokai'
+          onChange={(v) => this.props.onTextChange({ jslibs: v })}
+          name='jslibsEditor'
+          editorProps={{ $blockScrolling: true }} />
+      </Modal.Body>
+      <Modal.Footer><Button onClick={this.props.onButtonClick}>Close</Button></Modal.Footer>
+    </Modal>)
+  }
+}
+class CssIncludesModal extends Component {
+  render() {
+    return (<Modal
+      show={this.props.show}
+      onHide={this.props.onHide}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered>
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          css libraries
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <h4>CSS libraries</h4>
+        <AceEditor
+          value={this.props.value}
+          width='100%'
+          height='300px'
+          mode='css'
+          theme='monokai'
+          onChange={(v) => this.props.onTextChange({ csslibs: v })}
+          name='csslibsEditor'
+          editorProps={{ $blockScrolling: true }} />
+      </Modal.Body>
+      <Modal.Footer><Button onClick={this.props.onButtonClick}>Close</Button></Modal.Footer>
+    </Modal>)
+  }
+}
+class HelpReader extends Component {
+  render() {
+    return (<Modal
+      show={this.props.show}
+      onHide={this.props.onHide}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered>
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          help!
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Iframe height={600} 
+          width={"100%"} 
+          style={{overflow:scroll,maxHeight:'600px'}} 
+          src="help/jslibs.html" />
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={this.props.onButtonClick}>Close</Button>
+      </Modal.Footer>
+    </Modal>)
+  }
+}
+
 const ser = (k,v) => {
   if (!v) {
     const v = window.localStorage.getItem(k)
+    console.log('getser', v)
     return v ? JSON.parse(v) : null
   }
   window.localStorage.setItem(k, JSON.stringify(v))
+  console.log('setser', v)
 }
 
 
@@ -106,89 +204,6 @@ const oframe_js = `
   console = window.parent.console
 `
 
-class JsIncludesModal extends Component {
-  render() {
-    return (<Modal
-      show={this.props.show}
-      onHide={this.props.onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          js libraries
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>Javascript libraries</h4>
-        <AceEditor
-          value={this.props.value}
-          width='100%'
-          height='300px'
-          mode='javascript'
-          theme='monokai'
-          onChange={(v) => this.props.onTextChange({ jslibs: v })}
-          name='jslibsEditor'
-          editorProps={{ $blockScrolling: true }} />
-      </Modal.Body>
-      <Modal.Footer><Button onClick={this.props.onButtonClick}>Close</Button></Modal.Footer>
-    </Modal>)
-  }
-}
-
-class CssIncludesModal extends Component {
-  render() {
-    return (<Modal
-      show={this.props.show}
-      onHide={this.props.onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          css libraries
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>CSS libraries</h4>
-        <AceEditor
-          value={this.props.value}
-          width='100%'
-          height='300px'
-          mode='css'
-          theme='monokai'
-          onChange={(v) => this.props.onTextChange({ csslibs: v })}
-          name='csslibsEditor'
-          editorProps={{ $blockScrolling: true }} />
-      </Modal.Body>
-      <Modal.Footer><Button onClick={this.props.onButtonClick}>Close</Button></Modal.Footer>
-    </Modal>)
-  }
-}
-
-class MarkdownReader extends Component {
-  render() {
-    return (<Modal
-      show={this.props.show}
-      onHide={this.props.onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Markdown Readers
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <ReactMarkdown source={this.props.input} />
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={this.props.onButtonClick}>Close</Button>
-      </Modal.Footer>
-    </Modal>)
-  }
-}
-
 export default class JavascriptPlayground extends Component {
   state = {
     html : '',
@@ -197,44 +212,55 @@ export default class JavascriptPlayground extends Component {
     jslibs: '',
     csslibs: '',
     iframe: undefined,
-    iframeDOM: undefined,
+    dom: undefined,
     showjs: false,
     showcss: false,
-    showmarkdown: false,
-    n: 0
+    showhelp: false
   }
 
+  componentDidMount() {
+    this.setState({
+      iframe: (<Iframe src={'empty.html'} onLoad={this.oniFrameLoad} />),
+      mounted: true
+    })
+    const s = ser('jsplayground')
+    if (s) {
+      this.state = Object.assign(this.state, s)
+    }
+  }
+
+  handleChanges = (e) => {
+    this.setState(e)
+    const o = {
+      html : this.state.html,
+      css : this.state.css,
+      js : this.state.js,
+      jslibs: this.state.jslibs,
+      csslibs: this.state.csslibs,
+    }
+    ser('jsplayground', o)
+    this.refreshiFrame()
+  }
+  
+  handleShowJs = () => this.setState({ showjs: true })
   handleCloseJs = () => {
     this.setState({ showjs: false })
-    this.newIframe()
+    this.refreshiFrame()
   }
-  handleShowJs = () => this.setState({ showjs: true })
-
-  handleCloseCss = () => {
-    const self = this
-    this.setState({ showcss: false })
-    this.newIframe()
-  }
+  
   handleShowCss = () => this.setState({ showcss: true })
-
-  handleChangeJs = (e) => {
-    this.setState(e)
+  handleCloseCss = () => {
+    this.setState({ showcss: false })
+    this.refreshiFrame()
   }
-
-  handleChangeCss = (e) => {
-    this.setState(e)
-  }
-
-  handleCloseMarkdown = () => {
-    this.setState({
-      showmarkdown: false
-    })
-  }
+  
+  handleHelpLoad = () =>this.setState({ showhelp: false })
+  handleHelpClose = () => { this.setState({ showhelp: false }) }
 
   textToArray(t) {
+    if(!t.split) { return [] }
     return t.split('\n')
   } 
-
   arrayToText(t) {
     return t.join('\n')
   } 
@@ -242,111 +268,81 @@ export default class JavascriptPlayground extends Component {
   constructor (props) {
     super(props)
 
-    const s = ser('jsplayground')
-    if (s) {
-      this.state = Object.assign(this.state, s)
-    }
-
     this.oniFrameLoad = this.oniFrameLoad.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.handleChangeJs = this.handleChangeJs.bind(this)
-    this.handleChangeCss = this.handleChangeCss.bind(this)
+    this.handleChanges = this.handleChanges.bind(this)
     this.handleShowJs = this.handleShowJs.bind(this)
     this.handleShowCss = this.handleShowCss.bind(this)
     this.handleCloseJs = this.handleCloseJs.bind(this)
     this.handleCloseCss = this.handleCloseCss.bind(this)
-    this.newIframe = this.newIframe.bind(this)
-    this.handleCloseMarkdown = this.handleCloseMarkdown.bind(this)
-  }
-
-  componentDidMount() {
-    this.newIframe()
-  }
-
-  newIframe() {
-    const self = this
-    this.setState({n: this.state.n + 1})
-    if(this.state.iframe) {
-      delete this.state.iframe
-      delete this.state.iframeDOM
-    }
-    setTimeout(() => self.setState({
-      iframe:(<Iframe src="empty.html" id="c{this.state.n}" onLoad={self.oniFrameLoad} />)
-    }), 0)
+    this.handleGearClick = this.handleGearClick.bind(this)
+    this.handleHelpLoad = this.handleHelpLoad.bind(this)
+    this.handleHelpClose = this.handleHelpClose.bind(this)
   }
 
   buildContentFrame(frame) {
+    if(!frame) return
+    if(!frame.contentDocument) return
     const head = frame.contentDocument.head
     const body = frame.contentDocument.body
 
     const scriptContent = []
     const styleContent = []
 
-    const createScriptElement = (s, t) => {
-      if(!s && !t) {
-        return
-      }
+    const createScriptElement = (c, s, t) => {
+      if (!s && !t) { return }
       var sval = `<script type="text/javascript" `
-      if(s) {
-        sval += ` src="${s}" ></script>`
-      } else if (t) {
-        sval += `>${t}</script>`
-      }
-      scriptContent.push(sval)
+      if (s) { sval += ` src="${s}" ></script>` } 
+      else if (t) { sval += `>${t}</script>` }
+      c.push(sval)
+      return t
     }
-    const createStyleElement = (s, t) => {
-      if(!s && !t) {
-        return
-      }
-      var sval = ''
-      if(s) {
-        styleContent.push(`<link rel="stylesheet" href="${s}" />`)
-      } else if (t) {
-        styleContent.push(`<style>${t}</style>`)
-      }
-      styleContent.push(sval)
+    const createStyleElement = (c, s, t) => {
+      if(!s && !t) { return }
+      if(s) { c.push(`<link rel="stylesheet" href="${s}" />`) } 
+      else if (t) { c.push(`<style>${t}</style>`);  return t }
     }
 
-    this.textToArray(this.state.jslibs).forEach((el) => createScriptElement(el))
-    this.textToArray(this.state.csslibs).forEach((el) => createStyleElement(el))
+    this.textToArray(this.state.jslibs).forEach((el) => createScriptElement(scriptContent, el))
+    this.textToArray(this.state.csslibs).forEach((el) => createStyleElement(styleContent, el))
 
-    const j = (cd) => `
+    const wrap = (cd) => `
+    $(document).ready(() => {
     try {
       ${cd}
     } catch (e) {
       console.error(e)
-    }
+    }}
     `
-    createStyleElement(null, oframe_css )
-    createStyleElement(null, this.state.css )
-    createScriptElement(null, j(oframe_js) )
-    createScriptElement(null, j(this.state.js) )
+    const bodyScripts = `<script type="text/javascript">${wrap(oframe_js+this.state.js)}</script>`
+    const bodyStyles = `<style>${oframe_css}\n${this.state.css}</style>`
+    const scripts = scriptContent.join('\n')
+    const styles = styleContent.join('\n')
 
-    $(head).append($(styleContent.join('\n') + '\n' + scriptContent.join('\n')))
-    body.innerHTML = this.state.html
+    $(head).append($(`${scripts}\n${styles}`))
+    body.innerHTML = `${bodyStyles}\n\n${this.state.html}\n\n${bodyScripts}`;
+  }
 
-    ser('jsplayground', {
-      html : this.state.html,
-      css : this.state.css,
-      js : this.state.js,
-      jslibs: this.state.jslibs,
-      csslibs: this.state.csslibs,
-    })
+  refreshiFrame() {
+    if(this.state.dom) {
+      setTimeout(() => this.buildContentFrame(this.state.dom), 0)
+    }
   }
 
   oniFrameLoad (event) {
-    const iframeDOM = event.iframe
-    this.setState({iframeDOM})
-    this.buildContentFrame(iframeDOM)
+    this.setState({
+      dom: event.iframe
+    })
+    this.refreshiFrame()
+  }
+
+  handleGearClick(e) {
+    this.setState({showhelp:true})
   }
 
   handleChange (v) {
-    const self = this
-    const debounceCreateNewIframe = () => {
-      self.newIframe()
-    }
     this.setState(v)
-    debounce(debounceCreateNewIframe, 2000)()
+    debounce(()=>this.refreshiFrame(), 2000)()
   }
 
   render() {
@@ -356,23 +352,23 @@ export default class JavascriptPlayground extends Component {
       <div>
       <div style={classes} className='grid-stack debug-console-app'>
 
-      <JsIncludesModal
-        show={this.state.showjs}
-        value={this.state.jslibs}
-        onHide={this.handleCloseJs}
-        onTextChange={this.handleChangeJs}
-        onButtonClick={this.handleCloseJs} />
-      <CssIncludesModal
-        show={this.state.showcss}
-        value={this.state.csslibs}
-        onHide={this.handleCloseCss}
-        onTextChange={this.handleChangeCss}
-        onButtonClick={this.handleCloseCss} />
-      <MarkdownReader
-        input={this.state.markdown}
-        show={this.state.showmarkdown}
-        onHide={this.handleCloseMarkdown}
-        onButtonClick={this.handleCloseMarkdown} />
+        <JsIncludesModal
+          show={this.state.showjs}
+          value={this.state.jslibs}
+          onHide={this.handleCloseJs}
+          onTextChange={this.handleChanges}
+          onButtonClick={this.handleCloseJs} />
+        <CssIncludesModal
+          show={this.state.showcss}
+          value={this.state.csslibs}
+          onHide={this.handleCloseCss}
+          onTextChange={this.handleChanges}
+          onButtonClick={this.handleCloseCss} />
+        <HelpReader
+          show={this.state.showhelp}
+          onHide={this.handleHelpClose}
+          onHelpLoad={this.handleHelpLoad}
+          onButtonClick={this.handleHelpClose} />
         <div className='grid-stack-item output-panel'
           data-gs-no-move='no'
           data-gs-no-resize='no'
@@ -385,7 +381,9 @@ export default class JavascriptPlayground extends Component {
           data-gs-width={6}>
           <div className='editor-frame' style={{height:'100%'}}>
             <TitleBar text='output' />
-            <div id="root">{this.state.iframe}</div>
+            <div id="root">
+              {this.state.iframe}
+            </div>
           </div>
         </div>
 
@@ -402,7 +400,7 @@ export default class JavascriptPlayground extends Component {
           data-gs-min-width={12}
           data-gs-width={12} >
           <div className='editor-frame'>
-          <ActionBar></ActionBar></div>
+          <ActionBar onGearClick={this.handleGearClick} ></ActionBar></div>
         </div>
 
         <div className='grid-stack-item input-panel'
@@ -464,7 +462,7 @@ export default class JavascriptPlayground extends Component {
           <div className='editor-frame'>
           <TitleBar  text='js' onClick={this.handleShowJs} onArrowUp={this.handleShowJs} />
           <AceEditor
-              value={this.state.javascript}
+              value={this.state.js}
               width='100%'
               height='100%'
               mode='javascript'

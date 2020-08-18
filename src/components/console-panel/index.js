@@ -7,7 +7,12 @@ import './index.css'
 
 export default class ConsolePanel extends Component {
   state = {
-    logs: []
+    logs: [],
+    cssStyles: {
+      minHeight: 150,
+      backgroundColor: '#242424',
+      overflow: 'scroll'
+    }
   };
 
   componentDidMount () {
@@ -23,6 +28,7 @@ export default class ConsolePanel extends Component {
         this.setState({ logs: [...this.state.logs, log] })
         const doo = document.getElementById('console-panel')
         doo.scrollTop = doo.scrollHeight
+        this.setState({cssStyles:{overflow:'scroll'}})
       },
       false
     )
@@ -31,8 +37,8 @@ export default class ConsolePanel extends Component {
 
   render () {
     return (
-      <div className='console-panel' id='console-panel' style={{ minHeight: 150, backgroundColor: '#242424' }}>
-        <Console logs={this.state.logs} style={{ border: '1px solid #eee'}} variant='dark' />
+      <div className='console-panel' id='console-panel' style={this.state.cssStyles}>
+        <Console logs={this.state.logs} style={{border: '1px solid #eee'}} variant='dark' />
       </div>
     )
   }

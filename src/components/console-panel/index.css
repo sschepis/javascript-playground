@@ -1,4 +1,4 @@
-.console-panel {
-  overflow: auto;
-  height: 100%;
+div#console-panel.console-panel {
+  overflow: scroll;
+  background-color: #242424;
 }
