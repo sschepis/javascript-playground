@@ -164,11 +164,9 @@ class HelpReader extends Component {
 const ser = (k,v) => {
   if (!v) {
     const v = window.localStorage.getItem(k)
-    console.log('getser', v)
     return v ? JSON.parse(v) : null
   }
   window.localStorage.setItem(k, JSON.stringify(v))
-  console.log('setser', v)
 }
 
 
@@ -191,18 +189,6 @@ function debounce(f, t) {
   }
   return funcOut
 }
-
-const oframe_css = `
-body {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  padding: 0;
-}
-`
-const oframe_js = `
-  console = window.parent.console
-`
 
 export default class JavascriptPlayground extends Component {
   state = {
@@ -275,44 +261,34 @@ export default class JavascriptPlayground extends Component {
   buildContentFrame(frame) {
     if(!frame) return
     if(!frame.contentDocument) return
-    const head = frame.contentDocument.head
-    const body = frame.contentDocument.body
 
-    const scriptContent = []
-    const styleContent = []
+    const csslibs = this.textToArray(this.state.csslibs).map(el => {
+      if (!el || el.startsWith('#')) { return }
+      return `<link rel="stylesheet" href="${el}" />`
+    }).join('\n')
 
-    const createScriptElement = (c, s, t) => {
-      if (!s && !t) { return }
-      var sval = `<script type="text/javascript" `
-      if (s) { sval += ` src="${s}" ></script>` } 
-      else if (t) { sval += `>${t}</script>` }
-      c.push(sval)
-      return t
+    const jslibs = this.textToArray(this.state.jslibs).map(el => {
+      if (!el || el.startsWith('#')) { return }
+      return `<script type="text/javascript" src="${el}"></script>`
+    }).join('\n')
+
+    frame.contentDocument.head.innerHTML += `${csslibs}<style>
+    body {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      padding: 0;
     }
-    const createStyleElement = (c, s, t) => {
-      if(!s && !t) { return }
-      if(s) { c.push(`<link rel="stylesheet" href="${s}" />`) } 
-      else if (t) { c.push(`<style>${t}</style>`);  return t }
-    }
+    ${this.state.css}
+    </style>
+    <script type="text/javascript">
+    console = window.parent.console
+    </script>${jslibs}`
 
-    this.textToArray(this.state.jslibs).forEach((el) => createScriptElement(scriptContent, el))
-    this.textToArray(this.state.csslibs).forEach((el) => createStyleElement(styleContent, el))
-
-    const wrap = (cd) => `
-    $(document).ready(() => {
-    try {
-      ${cd}
-    } catch (e) {
-      console.error(e)
-    }}
-    `
-    const bodyScripts = `<script type="text/javascript">${wrap(oframe_js+this.state.js)}</script>`
-    const bodyStyles = `<style>${oframe_css}\n${this.state.css}</style>`
-    const scripts = scriptContent.join('\n')
-    const styles = styleContent.join('\n')
-
-    $(head).append($(`${scripts}\n${styles}`))
-    body.innerHTML = `${bodyStyles}\n\n${this.state.html}\n\n${bodyScripts}`;
+    frame.contentDocument.body.innerHTML = `${this.state.html}
+    <script type="text/javascript">
+    ${this.state.js}
+    </script>`
   }
 
   refreshiFrame() {
@@ -325,15 +301,13 @@ export default class JavascriptPlayground extends Component {
     }
     ser('jsplayground', o)
     if(this.state.dom) {
-      setTimeout(() => this.buildContentFrame(this.state.dom), 0)
+      this.state.dom.contentWindow.location.reload()
     }
   }
 
   oniFrameLoad (event) {
-    this.setState({
-      dom: event.iframe
-    })
-    this.refreshiFrame()
+    this.setState({ dom: event.iframe })
+    this.buildContentFrame(this.state.dom)
   }
 
   handleGearClick(e) {
