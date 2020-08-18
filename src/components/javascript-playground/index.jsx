@@ -231,14 +231,6 @@ export default class JavascriptPlayground extends Component {
 
   handleChanges = (e) => {
     this.setState(e)
-    const o = {
-      html : this.state.html,
-      css : this.state.css,
-      js : this.state.js,
-      jslibs: this.state.jslibs,
-      csslibs: this.state.csslibs,
-    }
-    ser('jsplayground', o)
     this.refreshiFrame()
   }
   
@@ -324,6 +316,14 @@ export default class JavascriptPlayground extends Component {
   }
 
   refreshiFrame() {
+    const o = {
+      html : this.state.html,
+      css : this.state.css,
+      js : this.state.js,
+      jslibs: this.state.jslibs,
+      csslibs: this.state.csslibs,
+    }
+    ser('jsplayground', o)
     if(this.state.dom) {
       setTimeout(() => this.buildContentFrame(this.state.dom), 0)
     }
