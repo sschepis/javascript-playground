@@ -49,13 +49,18 @@ export default class TitleBar extends Component {
   render () {
     return (
       <div style={classes} className={'titlebar'}>
-          <i style={{ marginLeft: 2, marginTop: 2, marginRight: 5 }} className='fa fa-dot-circle-o grid-stack-item-content' />
-          <i style={{ marginLeft: 2, marginTop: 2 }} className='fa fa-caret-down' />
-          <i style={{ marginLeft: 2, marginTop: 2 }} className='fa fa-caret-up' />
+          <i style={{ marginLeft: 2, marginTop: 2, marginRight: 5 }} className='fa fa-dot-circle-o grabbing grid-stack-item-content' />
+          <i style={{ marginLeft: 2, marginTop: 2 }} onClick={this.handleArrowUp} className='fa fa-clipboard' />
           <span className={'title-text'}>{this.props.text}</span>
-          <i style={{ marginRight: 4, marginTop: 4, float: 'right' }} className='fa fa-times' />
-          <i style={{ marginRight: 4, marginTop: 4, float: 'right' }} className='fa fa-arrow-down' />
-          <button style={{ float: 'right' }}  onClick={this.handleArrowUp}><i style={{ marginRight: 4, marginTop: 4 }}  className='fa fa-arrow-up' /></button>
+          
+          <button style={{ float: 'right', marginRight: 4, marginTop: 2 }}>
+            <i style={{ marginRight: 4, marginTop: 4, display: 'none' }} className='fa fa-caret-up' />
+            <i style={{ marginRight: 4, marginTop: 4 }} onClick = {
+                (e) => e.target.classes.find(el => el === 'hidden') 
+                ? e.target.classes.filter(e => e !== 'hidden')
+                : e.target.classes.push('hidden')}
+            className='fa fa-caret-down' />
+          </button>
       </div>
     )
   }
