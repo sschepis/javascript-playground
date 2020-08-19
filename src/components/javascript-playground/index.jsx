@@ -65,37 +65,21 @@ import '/node_modules/ace-builds/src-min-noconflict/theme-twilight'
 import '/node_modules/ace-builds/src-min-noconflict/theme-vibrant_ink'
 import '/node_modules/ace-builds/src-min-noconflict/theme-xcode'
 
-const framePropTypes = {
-  width: '100%',
-  height: '100%',
-  sandbox: {
-    allowForms: true,
-    allowModals: true,
-    allowPointerLock: false,
-    allowPopups: true,
-    allowSameOrigin: true,
-    allowScripts: true,
-    allowTopNavigation: false
-}}
-
 class ICustomFrame extends Component {
-
   static propTypes = {
     src: PropTypes.string.isRequired,
     onLoad: PropTypes.func,
   }
-
   componentDidMount () {
     let iframe = ReactDOM.findDOMNode(this.refs.iframe)
     iframe.addEventListener('load', this.props.onLoad);
   }
-
   render () {
     return (
       <iframe
         ref="iframe"
         {...this.props}
-        frameBorder={'0'}
+        frameBorder={'1'}
         width={'100%'}
         height={'100%'}
         style={{
@@ -108,10 +92,12 @@ class ICustomFrame extends Component {
   }
 }
 
+const localStore = window.localStorage
+
 const ser = (k,v) => {
   if (!v) {
-    const v = window.localStorage.getItem(k)
-    return v ? JSON.parse(v) : null
+    const v = localStore.getItem(k)
+    return JSON.parse(v)
   }
   window.localStorage.setItem(k, JSON.stringify(v))
 }
@@ -146,6 +132,7 @@ export default class JavascriptPlayground extends Component {
     js : '',
     jslibs: '',
     csslibs: '',
+    logs: [],
     dom: undefined,
     compiledPage: '',
     showjs: false,
@@ -176,10 +163,11 @@ export default class JavascriptPlayground extends Component {
 
   componentDidMount() {
     this.setState({ mounted: true })
-    const s = ser(' jsplayground')
+    const s = ser('jsplayground')
     if (s) {
       this.state = Object.assign(this.state, s)
     }
+    this.refreshiFrame()
   }
 
   handleChanges = (e) => {
@@ -224,6 +212,12 @@ export default class JavascriptPlayground extends Component {
     </style>
     <script type="text/javascript">
       console = window.console = window.parent.console
+      const loadJs = (f) => {
+        const s = document.createElement('script')
+        s.setAttribute('type','text/javascript')
+        s.setAttribute('src', f)
+        document.body.appendChild(s)
+      }
     </script>
     ${textToArray(this.state.jslibs).map(el => {
       if (!el || el.startsWith('#')) { return }
@@ -327,9 +321,10 @@ export default class JavascriptPlayground extends Component {
           data-gs-height={6}
           data-gs-width={6}>
           <div className='editor-frame' style={{height:'100%'}}>
+          <div className='abswrap'>
             <TitleBar text='output' />
             {this.state.iframe}
-          </div>
+          </div></div>
         </div>
       
         <div className='grid-stack-item actionbar-panel'
@@ -345,7 +340,9 @@ export default class JavascriptPlayground extends Component {
           data-gs-min-width={12}
           data-gs-width={12} >
           <div className='editor-frame'>
-          <ActionBar onGearClick={this.handleGearClick} ></ActionBar></div>
+          <div className='abswrap'>
+          <ActionBar onGearClick={this.handleGearClick} ></ActionBar>
+          </div></div>
         </div>
 
         <div className='grid-stack-item input-panel'
@@ -359,6 +356,7 @@ export default class JavascriptPlayground extends Component {
           data-gs-min-width={3}
           data-gs-width={6} >
           <div className='editor-frame'>
+          <div className='abswrap'>
             <TitleBar text='html' />
             <AceEditor
                 value={this.state.html}
@@ -368,7 +366,8 @@ export default class JavascriptPlayground extends Component {
                 theme='monokai'
                 onChange={(v) => this.handleChange({ html: v })}
                 name='htmlEditor'
-                editorProps={{ $blockScrolling: true }} /></div>
+                editorProps={{ $blockScrolling: true }} />
+            </div></div>
         </div>
 
         <div className='grid-stack-item input-panel'
@@ -382,6 +381,7 @@ export default class JavascriptPlayground extends Component {
           data-gs-height={3}
           data-gs-width={6} >
           <div className='editor-frame'>
+          <div className='abswrap'>
             <TitleBar text='css' onArrowUp={this.handleShowCss} />
             <AceEditor
                 value={this.state.css}
@@ -391,7 +391,8 @@ export default class JavascriptPlayground extends Component {
                 theme='monokai'
                 onChange={(v) => this.handleChange({ css: v })}
                 name='cssEditor'
-                editorProps={{ $blockScrolling: true }} /></div>
+                editorProps={{ $blockScrolling: true }} />
+                </div></div>
         </div>
 
         <div className='grid-stack-item input-panel'
@@ -405,6 +406,7 @@ export default class JavascriptPlayground extends Component {
           data-gs-height={3}
           data-gs-width={6} >
           <div className='editor-frame'>
+          <div className='abswrap'>
           <TitleBar  text='js' onClick={this.handleShowJs} onArrowUp={this.handleShowJs} />
           <AceEditor
               value={this.state.js}
@@ -414,7 +416,7 @@ export default class JavascriptPlayground extends Component {
               theme='monokai'
               onChange={(v) => this.handleChange({ js: v })}
               name='javascriptEditor'
-              editorProps={{ $blockScrolling: true }} /></div>
+              editorProps={{ $blockScrolling: true }} /></div></div>
         </div>
   
         <div style={{float:'left'}} className='grid-stack-item console-panel'
@@ -428,8 +430,10 @@ export default class JavascriptPlayground extends Component {
             data-gs-height={3}
             data-gs-width={6}>
             <div className='editor-frame'>
+            <div className='abswrap'>
             <TitleBar text='console' />
-            <ConsolePanel /></div>
+            <ConsolePanel logs={this.state.logs} /></div>
+            </div>
         </div>
       </div>
       </div>

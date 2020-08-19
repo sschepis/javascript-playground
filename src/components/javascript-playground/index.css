@@ -12,6 +12,10 @@
   height: 100%;
 }
 
+.ace_editor {
+  width: 100%;
+}
+
 .debug-console-app {
   width:100%;
   height: 100%;
@@ -22,12 +26,16 @@
   overflow:hidden;
   border-radius: 0px 0px 8px 8px;
   height:100%;
+  padding:10px;
 }
 
 .editor-frame {
   overflow:hidden;
-  margin-left: 10px;
-  margin-right:10px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 
 #root {
