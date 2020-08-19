@@ -7,13 +7,16 @@ import classes from './index.css'
 import JsIncludesModal from './js-includes-modal'
 import CssIncludesModal from './css-includes-modal'
 import HelpReader from './help-reader'
-import Frame, { FrameContextConsumer } from 'react-frame-component'
+import Iframe from 'react-iframe'
+import PropTypes from 'prop-types'
+import ReactDOM from 'react-dom'
 
 
 import '/node_modules/ace-builds/src-min-noconflict/mode-javascript'
 import '/node_modules/ace-builds/src-min-noconflict/mode-typescript'
 import '/node_modules/ace-builds/src-min-noconflict/mode-css'
 import '/node_modules/ace-builds/src-min-noconflict/mode-html'
+
 import '/node_modules/ace-builds/src-min-noconflict/ext-beautify'
 import '/node_modules/ace-builds/src-min-noconflict/ext-code_lens'
 import '/node_modules/ace-builds/src-min-noconflict/ext-language_tools'
@@ -75,6 +78,36 @@ const framePropTypes = {
     allowTopNavigation: false
 }}
 
+class ICustomFrame extends Component {
+
+  static propTypes = {
+    src: PropTypes.string.isRequired,
+    onLoad: PropTypes.func,
+  }
+
+  componentDidMount () {
+    let iframe = ReactDOM.findDOMNode(this.refs.iframe)
+    iframe.addEventListener('load', this.props.onLoad);
+  }
+
+  render () {
+    return (
+      <iframe
+        ref="iframe"
+        {...this.props}
+        frameBorder={'0'}
+        width={'100%'}
+        height={'100%'}
+        style={{
+      width: '100%',
+      height: '100%',
+      border: '0',
+      position: 'absolute',
+    }} />
+    )
+  }
+}
+
 const ser = (k,v) => {
   if (!v) {
     const v = window.localStorage.getItem(k)
@@ -115,10 +148,11 @@ export default class JavascriptPlayground extends Component {
     csslibs: '',
     dom: undefined,
     compiledPage: '',
-    iframe: undefined,
     showjs: false,
     showcss: false,
-    showhelp: false
+    showhelp: false,
+    refreshKey: 0,
+    iframe: undefined
   }
   
   constructor (props) {
@@ -136,6 +170,7 @@ export default class JavascriptPlayground extends Component {
     this.frameContentDidMount = this.frameContentDidMount.bind(this)
     this.frameContentDidUpdate = this.frameContentDidUpdate.bind(this)
     this.onFrameContextConsume = this.onFrameContextConsume.bind(this)
+    this.saveAndRefresh = this.saveAndRefresh.bind(this)
     this.frameLoaded = this.frameLoaded.bind(this)
   }
 
@@ -205,43 +240,48 @@ export default class JavascriptPlayground extends Component {
   }
 
   saveAndRefresh() {
+    const self = this
     const o = {
       html : this.state.html,
       css : this.state.css,
       js : this.state.js,
       jslibs: this.state.jslibs,
       csslibs: this.state.csslibs,
-      compiledPage: this.state.compiledPage
+      compiledPage: this.compilePage()
     }
     ser('jsplayground', o)
-    this.setState({
-      compiledPage: this.compilePage()
-    })
-    this.refreshiFrame()
+    this.setState({ compiledPage: o.compiledPage })
+    setTimeout(()=>self.refreshiFrame(), 0)
   }
 
   refreshiFrame() {
-    if(this.state.mounted) {
-      if(this.state.dom) {
-        this.state.dom.contentWindow.location.reload()
-      }
-    }
+    this.setState({
+      compiledPage: this.compilePage(),
+      refreshKey: this.state.refreshKey + 1,
+      iframe: ((<ICustomFrame src="empty.html" srcDoc={this.state.compiledPage}
+        key={this.state.refreshKey}
+        width={'100%'}
+        height={'300px'}
+        style={{width:'100%', height: '100%', border: 0}}
+        id={'contentframe'}
+        className={'contentframe'} />))
+    })
   }
 
   frameContentDidMount (event) {
-
+    console.log('frameCOntentDidMount')
   }
 
   frameContentDidUpdate (event) {
- 
+    console.log('frameContentDidUpdate')
   }
 
   onFrameContextConsume (event) {
- 
+    console.log('onFrameContextConsume')
   }
 
   frameLoaded (event) {
-    console.log(event)
+    console.log('frameLoaded', event)
   }
   
   handleGearClick(e) {
@@ -254,7 +294,6 @@ export default class JavascriptPlayground extends Component {
   }
 
   render() {
-
     // findDOMNode
     return (
       <div>
@@ -289,18 +328,10 @@ export default class JavascriptPlayground extends Component {
           data-gs-width={6}>
           <div className='editor-frame' style={{height:'100%'}}>
             <TitleBar text='output' />
-            <div id="root" />
-            <Frame 
-              style={{width:'100%', height: '100%', border: 0}}
-              onLoad={this.frameLoaded}
-              initialContent={this.state.compiledPage} 
-              contentDidMount={this.frameContentDidMount}
-              contentDidUpdate={this.frameContentDidUpdate}
-              ><FrameContextConsumer>{this.onFrameContextConsume}</FrameContextConsumer>
-            </Frame>
+            {this.state.iframe}
           </div>
         </div>
-
+      
         <div className='grid-stack-item actionbar-panel'
           data-gs-no-move='no'
           data-gs-no-resize='no'
@@ -328,16 +359,16 @@ export default class JavascriptPlayground extends Component {
           data-gs-min-width={3}
           data-gs-width={6} >
           <div className='editor-frame'>
-          <TitleBar text='html' />
-          <AceEditor
-              value={this.state.html}
-              width='100%'
-              height='100%'
-              mode='html'
-              theme='monokai'
-              onChange={(v) => this.handleChange({ html: v })}
-              name='htmlEditor'
-              editorProps={{ $blockScrolling: true }} /></div>
+            <TitleBar text='html' />
+            <AceEditor
+                value={this.state.html}
+                width='100%'
+                height='100%'
+                mode='html'
+                theme='monokai'
+                onChange={(v) => this.handleChange({ html: v })}
+                name='htmlEditor'
+                editorProps={{ $blockScrolling: true }} /></div>
         </div>
 
         <div className='grid-stack-item input-panel'
@@ -351,16 +382,16 @@ export default class JavascriptPlayground extends Component {
           data-gs-height={3}
           data-gs-width={6} >
           <div className='editor-frame'>
-          <TitleBar text='css' onArrowUp={this.handleShowCss} />
-          <AceEditor
-              value={this.state.css}
-              width='100%'
-              height='100%'
-              mode='css'
-              theme='monokai'
-              onChange={(v) => this.handleChange({ css: v })}
-              name='cssEditor'
-              editorProps={{ $blockScrolling: true }} /></div>
+            <TitleBar text='css' onArrowUp={this.handleShowCss} />
+            <AceEditor
+                value={this.state.css}
+                width='100%'
+                height='100%'
+                mode='css'
+                theme='monokai'
+                onChange={(v) => this.handleChange({ css: v })}
+                name='cssEditor'
+                editorProps={{ $blockScrolling: true }} /></div>
         </div>
 
         <div className='grid-stack-item input-panel'
