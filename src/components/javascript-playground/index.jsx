@@ -3,10 +3,11 @@ import AceEditor from 'react-ace'
 import ActionBar from '../action-bar'
 import ConsolePanel from '../console-panel'
 import TitleBar from '../title-bar'
-import Iframe from '@trendmicro/react-iframe'
 import classes from './index.css'
-import Button from 'react-bootstrap/Button'
-import Modal from 'react-bootstrap/Modal'
+import JsIncludesModal from './js-includes-modal'
+import CssIncludesModal from './css-includes-modal'
+import HelpReader from './help-reader'
+import Frame, { FrameContextConsumer } from 'react-frame-component'
 
 
 import '/node_modules/ace-builds/src-min-noconflict/mode-javascript'
@@ -72,94 +73,7 @@ const framePropTypes = {
     allowSameOrigin: true,
     allowScripts: true,
     allowTopNavigation: false
-  }}
-
-const debounceTimes = {}
-const debounceTimerRefs = {}
-
-class JsIncludesModal extends Component {
-  render() {
-    return (<Modal
-      show={this.props.show}
-      onHide={this.props.onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          js libraries
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>Javascript libraries</h4>
-        <AceEditor
-          value={this.props.value}
-          width='100%'
-          height='300px'
-          mode='javascript'
-          theme='monokai'
-          onChange={(v) => this.props.onTextChange({ jslibs: v })}
-          name='jslibsEditor'
-          editorProps={{ $blockScrolling: true }} />
-      </Modal.Body>
-      <Modal.Footer><Button onClick={this.props.onButtonClick}>Close</Button></Modal.Footer>
-    </Modal>)
-  }
-}
-class CssIncludesModal extends Component {
-  render() {
-    return (<Modal
-      show={this.props.show}
-      onHide={this.props.onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          css libraries
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>CSS libraries</h4>
-        <AceEditor
-          value={this.props.value}
-          width='100%'
-          height='300px'
-          mode='css'
-          theme='monokai'
-          onChange={(v) => this.props.onTextChange({ csslibs: v })}
-          name='csslibsEditor'
-          editorProps={{ $blockScrolling: true }} />
-      </Modal.Body>
-      <Modal.Footer><Button onClick={this.props.onButtonClick}>Close</Button></Modal.Footer>
-    </Modal>)
-  }
-}
-class HelpReader extends Component {
-  render() {
-    return (<Modal
-      show={this.props.show}
-      onHide={this.props.onHide}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered>
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          help!
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Iframe height={600} 
-          width={"100%"} 
-          style={{overflow:scroll,maxHeight:'600px'}} 
-          src="help/jslibs.html" />
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={this.props.onButtonClick}>Close</Button>
-      </Modal.Footer>
-    </Modal>)
-  }
-}
+}}
 
 const ser = (k,v) => {
   if (!v) {
@@ -169,6 +83,8 @@ const ser = (k,v) => {
   window.localStorage.setItem(k, JSON.stringify(v))
 }
 
+const debounceTimes = {}
+const debounceTimerRefs = {}
 
 function debounce(f, t) {
   const fName = f.name ? f.name : 'anonymous'
@@ -197,19 +113,35 @@ export default class JavascriptPlayground extends Component {
     js : '',
     jslibs: '',
     csslibs: '',
-    iframe: undefined,
     dom: undefined,
+    compiledPage: '',
+    iframe: undefined,
     showjs: false,
     showcss: false,
     showhelp: false
   }
+  
+  constructor (props) {
+    super(props)
+
+    this.handleChange = this.handleChange.bind(this)
+    this.handleChanges = this.handleChanges.bind(this)
+    this.handleShowJs = this.handleShowJs.bind(this)
+    this.handleShowCss = this.handleShowCss.bind(this)
+    this.handleCloseJs = this.handleCloseJs.bind(this)
+    this.handleCloseCss = this.handleCloseCss.bind(this)
+    this.handleGearClick = this.handleGearClick.bind(this)
+    this.handleHelpLoad = this.handleHelpLoad.bind(this)
+    this.handleHelpClose = this.handleHelpClose.bind(this)
+    this.frameContentDidMount = this.frameContentDidMount.bind(this)
+    this.frameContentDidUpdate = this.frameContentDidUpdate.bind(this)
+    this.onFrameContextConsume = this.onFrameContextConsume.bind(this)
+    this.frameLoaded = this.frameLoaded.bind(this)
+  }
 
   componentDidMount() {
-    this.setState({
-      iframe: (<Iframe src={'empty.html'} onLoad={this.oniFrameLoad} />),
-      mounted: true
-    })
-    const s = ser('jsplayground')
+    this.setState({ mounted: true })
+    const s = ser(' jsplayground')
     if (s) {
       this.state = Object.assign(this.state, s)
     }
@@ -235,44 +167,18 @@ export default class JavascriptPlayground extends Component {
   handleHelpLoad = () =>this.setState({ showhelp: false })
   handleHelpClose = () => { this.setState({ showhelp: false }) }
 
-  textToArray(t) {
-    if(!t.split) { return [] }
-    return t.split('\n')
-  } 
-  arrayToText(t) {
-    return t.join('\n')
-  } 
-
-  constructor (props) {
-    super(props)
-
-    this.oniFrameLoad = this.oniFrameLoad.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleChanges = this.handleChanges.bind(this)
-    this.handleShowJs = this.handleShowJs.bind(this)
-    this.handleShowCss = this.handleShowCss.bind(this)
-    this.handleCloseJs = this.handleCloseJs.bind(this)
-    this.handleCloseCss = this.handleCloseCss.bind(this)
-    this.handleGearClick = this.handleGearClick.bind(this)
-    this.handleHelpLoad = this.handleHelpLoad.bind(this)
-    this.handleHelpClose = this.handleHelpClose.bind(this)
-  }
-
-  buildContentFrame(frame) {
-    if(!frame) return
-    if(!frame.contentDocument) return
-
-    const csslibs = this.textToArray(this.state.csslibs).map(el => {
+  compilePage() {
+    const textToArray = (t) => {
+      if(!t.split) { return [] }
+      return t.split('\n')
+    } 
+    return `<html>
+    <head>
+    ${textToArray(this.state.csslibs).map(el => {
       if (!el || el.startsWith('#')) { return }
       return `<link rel="stylesheet" href="${el}" />`
-    }).join('\n')
-
-    const jslibs = this.textToArray(this.state.jslibs).map(el => {
-      if (!el || el.startsWith('#')) { return }
-      return `<script type="text/javascript" src="${el}"></script>`
-    }).join('\n')
-
-    frame.contentDocument.head.innerHTML += `${csslibs}<style>
+    }).join('\n')}
+    <style>
     body {
       width: 100%;
       height: 100%;
@@ -282,41 +188,69 @@ export default class JavascriptPlayground extends Component {
     ${this.state.css}
     </style>
     <script type="text/javascript">
-    console = window.parent.console
-    </script>${jslibs}`
-
-    frame.contentDocument.body.innerHTML = `${this.state.html}
+      console = window.console = window.parent.console
+    </script>
+    ${textToArray(this.state.jslibs).map(el => {
+      if (!el || el.startsWith('#')) { return }
+      return `<script type="text/javascript" src="${el}"></script>`
+    }).join('\n')}
+    </head>
+    <body>
+    ${this.state.html}
+    </body>
     <script type="text/javascript">
     ${this.state.js}
-    </script>`
+    </script>
+    </html>`
   }
 
-  refreshiFrame() {
+  saveAndRefresh() {
     const o = {
       html : this.state.html,
       css : this.state.css,
       js : this.state.js,
       jslibs: this.state.jslibs,
       csslibs: this.state.csslibs,
+      compiledPage: this.state.compiledPage
     }
     ser('jsplayground', o)
-    if(this.state.dom) {
-      this.state.dom.contentWindow.location.reload()
+    this.setState({
+      compiledPage: this.compilePage()
+    })
+    this.refreshiFrame()
+  }
+
+  refreshiFrame() {
+    if(this.state.mounted) {
+      if(this.state.dom) {
+        this.state.dom.contentWindow.location.reload()
+      }
     }
   }
 
-  oniFrameLoad (event) {
-    this.setState({ dom: event.iframe })
-    this.buildContentFrame(this.state.dom)
+  frameContentDidMount (event) {
+
   }
 
+  frameContentDidUpdate (event) {
+ 
+  }
+
+  onFrameContextConsume (event) {
+ 
+  }
+
+  frameLoaded (event) {
+    console.log(event)
+  }
+  
   handleGearClick(e) {
     this.setState({showhelp:true})
   }
 
   handleChange (v) {
     this.setState(v)
-    debounce(()=>this.refreshiFrame(), 2000)()
+    debounce(()=>this.saveAndRefresh(), 2000)()
   }
 
   render() {
@@ -355,9 +289,15 @@ export default class JavascriptPlayground extends Component {
           data-gs-width={6}>
           <div className='editor-frame' style={{height:'100%'}}>
             <TitleBar text='output' />
-            <div id="root">
-              {this.state.iframe}
-            </div>
+            <div id="root" />
+            <Frame 
+              style={{width:'100%', height: '100%', border: 0}}
+              onLoad={this.frameLoaded}
+              initialContent={this.state.compiledPage} 
+              contentDidMount={this.frameContentDidMount}
+              contentDidUpdate={this.frameContentDidUpdate}
+              ><FrameContextConsumer>{this.onFrameContextConsume}</FrameContextConsumer>
+            </Frame>
           </div>
         </div>
 
