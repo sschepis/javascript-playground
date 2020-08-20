@@ -67,7 +67,7 @@ import '/node_modules/ace-builds/src-min-noconflict/theme-xcode'
 
 class ICustomFrame extends Component {
   static propTypes = {
-    src: PropTypes.string.isRequired,
+    srcDoc: PropTypes.string.isRequired,
     onLoad: PropTypes.func,
   }
   componentDidMount () {
@@ -78,7 +78,7 @@ class ICustomFrame extends Component {
     return (
       <iframe
         ref="iframe"
-        {...this.props}
+        srcdoc={this.props.srcDoc}
         frameBorder={'1'}
         width={'100%'}
         height={'100%'}
@@ -139,7 +139,8 @@ export default class JavascriptPlayground extends Component {
     showcss: false,
     showhelp: false,
     refreshKey: 0,
-    iframe: undefined
+    iframe: undefined,
+    liveCompile: true
   }
   
   constructor (props) {
@@ -154,6 +155,7 @@ export default class JavascriptPlayground extends Component {
     this.handleGearClick = this.handleGearClick.bind(this)
     this.handleHelpLoad = this.handleHelpLoad.bind(this)
     this.handleHelpClose = this.handleHelpClose.bind(this)
+    this.handleLiveCompileChange = this.handleLiveCompileChange.bind(this)
     this.frameContentDidMount = this.frameContentDidMount.bind(this)
     this.frameContentDidUpdate = this.frameContentDidUpdate.bind(this)
     this.onFrameContextConsume = this.onFrameContextConsume.bind(this)
@@ -189,6 +191,12 @@ export default class JavascriptPlayground extends Component {
   
   handleHelpLoad = () =>this.setState({ showhelp: false })
   handleHelpClose = () => { this.setState({ showhelp: false }) }
+
+  handleLiveCompileChange = (lc) =>this.setState({ liveCompile: lc })
+
+  runPage() {
+
+  }
 
   compilePage() {
     const textToArray = (t) => {
@@ -241,18 +249,22 @@ export default class JavascriptPlayground extends Component {
       js : this.state.js,
       jslibs: this.state.jslibs,
       csslibs: this.state.csslibs,
-      compiledPage: this.compilePage()
+      liveCompile: this.state.liveCompile,
+      compiledPage: this.state.liveCompile 
+        ? this.compilePage() 
+        : this.state.compiledPage
     }
     ser('jsplayground', o)
-    this.setState({ compiledPage: o.compiledPage })
-    setTimeout(()=>self.refreshiFrame(), 0)
+    if(this.state.liveCompile) {
+      setTimeout(()=>self.refreshiFrame(), 0)
+    }
   }
 
   refreshiFrame() {
     this.setState({
       compiledPage: this.compilePage(),
       refreshKey: this.state.refreshKey + 1,
-      iframe: ((<ICustomFrame src="empty.html" srcDoc={this.state.compiledPage}
+      iframe: ((<ICustomFrame srcDoc={this.state.compiledPage}
         key={this.state.refreshKey}
         width={'100%'}
         height={'300px'}
@@ -341,7 +353,11 @@ export default class JavascriptPlayground extends Component {
           data-gs-width={12} >
           <div className='editor-frame'>
           <div className='abswrap'>
-          <ActionBar onGearClick={this.handleGearClick} ></ActionBar>
+          <ActionBar 
+            onLiveCompileChange={this.handleLiveCompileChange}
+            liveCompile={this.state.liveCompile}
+            onGearClick={this.handleGearClick} 
+          ></ActionBar>
           </div></div>
         </div>
 
