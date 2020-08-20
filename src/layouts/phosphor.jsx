@@ -1,5 +1,5 @@
 import React, { h, Component } from 'react'
-import JavascriptPlayground from './javascript-playground'
+import JavascriptPlayground from './phosphor'
 import { render } from 'react-dom'
 
 import classes from './app.css'

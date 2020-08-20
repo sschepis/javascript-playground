@@ -7,10 +7,7 @@ import classes from './index.css'
 import JsIncludesModal from './js-includes-modal'
 import CssIncludesModal from './css-includes-modal'
 import HelpReader from './help-reader'
-import Iframe from 'react-iframe'
-import PropTypes from 'prop-types'
-import ReactDOM from 'react-dom'
-
+import CustomIFrame from '../../components/custom-iframe'
 
 import '/node_modules/ace-builds/src-min-noconflict/mode-javascript'
 import '/node_modules/ace-builds/src-min-noconflict/mode-typescript'
@@ -64,33 +61,6 @@ import '/node_modules/ace-builds/src-min-noconflict/theme-tomorrow_night_eightie
 import '/node_modules/ace-builds/src-min-noconflict/theme-twilight'
 import '/node_modules/ace-builds/src-min-noconflict/theme-vibrant_ink'
 import '/node_modules/ace-builds/src-min-noconflict/theme-xcode'
-
-class ICustomFrame extends Component {
-  static propTypes = {
-    src: PropTypes.string.isRequired,
-    onLoad: PropTypes.func,
-  }
-  componentDidMount () {
-    let iframe = ReactDOM.findDOMNode(this.refs.iframe)
-    iframe.addEventListener('load', this.props.onLoad);
-  }
-  render () {
-    return (
-      <iframe
-        ref="iframe"
-        {...this.props}
-        frameBorder={'1'}
-        width={'100%'}
-        height={'100%'}
-        style={{
-      width: '100%',
-      height: '100%',
-      border: '0',
-      position: 'absolute',
-    }} />
-    )
-  }
-}
 
 const localStore = window.localStorage
 
@@ -252,7 +222,7 @@ export default class JavascriptPlayground extends Component {
     this.setState({
       compiledPage: this.compilePage(),
       refreshKey: this.state.refreshKey + 1,
-      iframe: ((<ICustomFrame src="empty.html" srcDoc={this.state.compiledPage}
+      iframe: ((<CustomIFrame srcDoc={this.state.compiledPage}
         key={this.state.refreshKey}
         width={'100%'}
         height={'300px'}

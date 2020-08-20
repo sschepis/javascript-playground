@@ -18,7 +18,8 @@
     "marked": "^1.1.1",
     "parcel-plugin-inliner": "^1.0.14",
     "parcel-plugin-static-files-copy": "^2.5.0",
-    "posthtml": "^0.13.2"
+    "posthtml": "^0.13.2",
+    "typescript": "^3.9.7"
   },
   "scripts": {
     "start": "parcel index.html",
@@ -28,10 +29,16 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.11.2",
+    "@phosphor/commands": "^1.7.2",
+    "@phosphor/default-theme": "^0.1.8",
+    "@phosphor/dragdrop": "^1.4.1",
+    "@phosphor/messaging": "^1.3.0",
+    "@phosphor/widgets": "^1.9.3",
     "@trendmicro/react-iframe": "^1.0.1",
     "app.css": "^0.1.2",
     "bootstrap": "^4.5.2",
     "console-feed": "^3.0.0",
+    "es6-promise": "^4.2.8",
     "font-awesome": "^4.7.0",
     "help": "^3.0.2",
     "prop-types": "^15.7.2",
