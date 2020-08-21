@@ -41,6 +41,7 @@
     "es6-promise": "^4.2.8",
     "font-awesome": "^4.7.0",
     "help": "^3.0.2",
+    "phosphor": "^0.7.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-ace": "^9.1.3",

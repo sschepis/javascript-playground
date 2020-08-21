@@ -1,1 +1,1 @@
-require('./layouts/gridstack.jsx')
+require('./layouts/phosphor.jsx')

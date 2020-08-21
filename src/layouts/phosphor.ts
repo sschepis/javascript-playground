@@ -7,46 +7,48 @@
 |----------------------------------------------------------------------------*/
 import 'es6-promise/auto';  // polyfill Promise on IE
 
+import React from 'react'
+
 import { CommandRegistry } from '@phosphor/commands';
 import { Message } from '@phosphor/messaging';
-import { BoxPanel, CommandPalette, ContextMenu, DockPanel, Menu, MenuBar, Widget } from '@phosphor/widgets';
 
-import './phosphor.css';
+import { 
+  BoxPanel, 
+  CommandPalette, 
+  ContextMenu, 
+  DockPanel, 
+  Menu, 
+  MenuBar, 
+  Widget 
+} from '@phosphor/widgets';
 
 const commands = new CommandRegistry();
 
-function createWorkspaceMenu(): Menu {
-
+export function createWorkspaceMenu(): Menu {
   let root = new Menu({ commands });
   root.addItem({ command: 'jsplayground:new-sketch' });
   root.addItem({ command: 'jsplayground:open-sketch' });
   root.addItem({ command: 'jsplayground:clone-sketch' });
   root.addItem({ type: 'separator' });
   root.addItem({ command: 'jsplayground:settings' });
-
   return root;
 }
 
-function createSketchMenu(): Menu {
-
+export function createSketchMenu(): Menu {
   let root = new Menu({ commands });
   root.addItem({ command: 'sketch:run-sketch' });
   root.addItem({ type: 'separator' });
   root.addItem({ command: 'sketch:toggle-livemode' });
-
   return root;
 }
 
-
-class OutputWidget extends Widget {
-
+export class CompiledOutputWidget extends Widget {
   static createNode(): HTMLElement {
     let node = document.createElement('div');
     return node;
   }
-
   constructor(name: string) {
-    super({ node: ContentWidget.createNode() });
+    super({ node: CompiledOutputWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
     this.addClass('content');
     this.addClass(name.toLowerCase());
@@ -54,27 +56,20 @@ class OutputWidget extends Widget {
     this.title.closable = true;
     this.title.caption = `Long description for: ${name}`;
   }
-
-  get inputNode(): HTMLInputElement {
-    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-  }
-
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
-      this.inputNode.focus();
+      this.node.focus();
     }
   }
 }
 
-class HTMLInputWidget extends Widget {
-
+export class HTMLInputWidget extends Widget {
   static createNode(): HTMLElement {
     let node = document.createElement('div');
     return node;
   }
-
   constructor(name: string) {
-    super({ node: ContentWidget.createNode() });
+    super({ node: HTMLInputWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
     this.addClass('content');
     this.addClass(name.toLowerCase());
@@ -82,27 +77,23 @@ class HTMLInputWidget extends Widget {
     this.title.closable = true;
     this.title.caption = `Long description for: ${name}`;
   }
-
-  get inputNode(): HTMLInputElement {
-    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-  }
-
+  // get inputNode(): HTMLInputElement {
+  //   return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
+  // }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
-      this.inputNode.focus();
+      this.node.focus();
     }
   }
 }
 
-class CSSInputWidget extends Widget {
-
+export class CSSInputWidget extends Widget {
   static createNode(): HTMLElement {
     let node = document.createElement('div');
     return node;
   }
-
   constructor(name: string) {
-    super({ node: ContentWidget.createNode() });
+    super({ node: CSSInputWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
     this.addClass('content');
     this.addClass(name.toLowerCase());
@@ -110,27 +101,20 @@ class CSSInputWidget extends Widget {
     this.title.closable = true;
     this.title.caption = `Long description for: ${name}`;
   }
-
-  get inputNode(): HTMLInputElement {
-    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-  }
-
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
-      this.inputNode.focus();
+      this.node.focus();
     }
   }
 }
 
-class JSInputWidget extends Widget {
-
+export class JSInputWidget extends Widget {
   static createNode(): HTMLElement {
     let node = document.createElement('div');
     return node;
   }
-
   constructor(name: string) {
-    super({ node: ContentWidget.createNode() });
+    super({ node: JSInputWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
     this.addClass('content');
     this.addClass(name.toLowerCase());
@@ -138,27 +122,20 @@ class JSInputWidget extends Widget {
     this.title.closable = true;
     this.title.caption = `Long description for: ${name}`;
   }
-
-  get inputNode(): HTMLInputElement {
-    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-  }
-
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
-      this.inputNode.focus();
+      this.node.focus();
     }
   }
 }
 
-class ConsoleOutputWidget extends Widget {
-
+export class ConsoleOutputWidget extends Widget {
   static createNode(): HTMLElement {
     let node = document.createElement('div');
     return node;
   }
-
   constructor(name: string) {
-    super({ node: ContentWidget.createNode() });
+    super({ node: ConsoleOutputWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
     this.addClass('content');
     this.addClass(name.toLowerCase());
@@ -166,21 +143,14 @@ class ConsoleOutputWidget extends Widget {
     this.title.closable = true;
     this.title.caption = `Long description for: ${name}`;
   }
-
-  get inputNode(): HTMLInputElement {
-    return this.node.getElementsByTagName('input')[0] as HTMLInputElement;
-  }
-
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
-      this.inputNode.focus();
+      this.node.focus();
     }
   }
 }
 
-
-function main(): void {
-
+export function layout(): any {
   commands.addCommand('jsplayground:new-sketch', {
     label: 'New Sketch',
     mnemonic: 0,
@@ -189,7 +159,6 @@ function main(): void {
       console.log('New Sketch');
     }
   });
-
   commands.addCommand('jsplayground:open-sketch', {
     label: 'Open Sketch',
     mnemonic: 0,
@@ -198,7 +167,6 @@ function main(): void {
       console.log('Open Sketch');
     }
   });
-
   commands.addCommand('jsplayground:clone-sketch', {
     label: 'Clone Sketch',
     mnemonic: 0,
@@ -207,7 +175,6 @@ function main(): void {
       console.log('Clone Sketch');
     }
   });
-
   commands.addCommand('sketch:run-sketch', {
     label: 'Run Sketch',
     caption: 'Run Current Sketch',
@@ -216,7 +183,6 @@ function main(): void {
       console.log('Run Sketch');
     }
   });
-
   commands.addCommand('sketch:live-mode', {
     label: 'Live Mode',
     mnemonic: 1,
@@ -231,13 +197,13 @@ function main(): void {
   menu1.title.mnemonic = 0;
 
   let menu2 = createSketchMenu();
-  menu1.title.label = 'Sketch';
-  menu1.title.mnemonic = 1;
+  menu2.title.label = 'Sketch';
+  menu2.title.mnemonic = 1;
 
-  let bar = new MenuBar();
-  bar.addMenu(menu1);
-  bar.addMenu(menu2);
-  bar.id = 'menuBar';
+  // let bar = new MenuBar();
+  // bar.addMenu(menu1);
+  // bar.addMenu(menu2);
+  // bar.id = 'menuBar';
 
   let palette = new CommandPalette({ commands });
   palette.addItem({ command: 'jsplayground:new-sketch', category: 'Workspace' });
@@ -256,22 +222,22 @@ function main(): void {
     }
   });
 
-
   document.addEventListener('keydown', (event: KeyboardEvent) => {
     commands.processKeydownEvent(event);
   });
 
-  let r1 = new OutputWidget('Red');
-  let b1 = new HTMLInputWidget('Blue');
-  let g1 = new CSSInputWidget('Green');
-  let y1 = new JSInputWidget('Yellow');
-  let z1 = new ConsoleOutputWidget('Purple');
+  let r1 = new CompiledOutputWidget('Output');
+  let b1 = new HTMLInputWidget('HTML');
+  let g1 = new CSSInputWidget('CSS');
+  let y1 = new JSInputWidget('JS');
+  let z1 = new ConsoleOutputWidget('Console');
 
   let dock = new DockPanel();
   dock.addWidget(r1);
   dock.addWidget(b1, { mode: 'split-right', ref: r1 });
-  dock.addWidget(y1, { mode: 'split-bottom', ref: b1 });
-  dock.addWidget(g1, { mode: 'split-left', ref: y1 });
+  dock.addWidget(y1, { mode: 'split-top', ref: b1 });
+  dock.addWidget(g1, { mode: 'split-left', ref: b1 });
+  dock.addWidget(z1, { mode: 'split-bottom', ref: r1 });
   dock.id = 'dock';
 
   let savedLayouts: DockPanel.ILayoutConfig[] = [];
@@ -306,15 +272,8 @@ function main(): void {
 
   BoxPanel.setStretch(dock, 1);
 
-  let main = new BoxPanel({ direction: 'left-to-right', spacing: 0 });
-  main.id = 'main';
-  main.addWidget(palette);
-  main.addWidget(dock);
-
-  window.onresize = () => { main.update(); };
-
-  Widget.attach(bar, document.body);
-  Widget.attach(main, document.body);
+  return { 
+    main: [palette, dock],
+    menu: [menu1, menu2]
+  }
 }
-
-window.onload = main;

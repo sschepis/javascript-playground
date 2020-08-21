@@ -2,7 +2,7 @@ import React, { h, Component } from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 
-class CustomIFrame extends Component {
+export default class CustomIFrame extends Component {
   static propTypes = {
     srcDoc: PropTypes.string.isRequired,
     onLoad: PropTypes.func,
