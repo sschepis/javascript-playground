@@ -9,30 +9,50 @@ export default class ReactPhosphorWidget extends React.PureComponent<IWidgetProp
   widget: any
   props: {
     id: any,
-    elementClass: any,
+    widgetClass: any,
     contextStore: any,
     widgetCreated?: any,
-    widgetDidMount?: any
+    widgetDidMount?: any,
+    children?: any
   }
   widgetInfo: { node: any, component: any }
   constructor(props) {
     super(props)
-    this.widget = new this.props.elementClass(this.props.contextStore)
-    this.widget.id = this.props.id
-    if(this.props.widgetCreated) {
-      this.props.widgetCreated(this, this.widget)
+    if(this.props.widgetClass) {
+      this.widget = new this.props.widgetClass(this.props.contextStore)
+      this.widget.id = this.props.id
+      if(this.props.widgetCreated) {
+        this.props.widgetCreated(this, this.widget)
+      }
     }
   }
-
+  
   componentDidMount() {
+    let widgetInfo = {}
     let node = document.createElement("div")
-    let wrapper = new WrapperWidget(this.constructor.name, node)
-    console.log(this.constructor.name)
+    let widget = new WrapperWidget(this.widget.constructor.name, node)
 
-    this.widgetInfo = {node, component:this}
-    Widget.attach(wrapper, this.elem);
+    var p = null, s = null
+    try {
+      p =  ((this.props) as any).addWidgetFunc
+      s = ((this.state) as any).addWidgetFunc
+    } catch(e:any) {}
+    const pawFunc: any = p
+    const sawFunc: any = s
+
+    if(pawFunc) {
+      pawFunc(this.widget)
+    } else if(sawFunc) {
+      sawFunc(this.widget)
+    } else {
+
+    }
+    const component = this.widget
+    this.widgetInfo = {node, component}
+
+    Widget.attach(this.widget, this.elem);
     if(this.props.widgetDidMount) {
-      this.props.widgetDidMount(this, wrapper, this.elem)
+      this.props.widgetDidMount(this, this.widget, this.elem)
     }
   }
 

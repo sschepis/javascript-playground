@@ -31,15 +31,7 @@ export default class ReactPhosphorDockPanel extends ReactPhosphorWidgetContainer
     this.container.title.caption = `Long description for: ${this.props.title.label}`
     this.state = {
       addWidgetFunc:(t:any, c: any) => {
-        var p, o
-        if (Array.isArray(c)) {
-          p = c[0]
-          if(c.length > 1) {
-            o = c[1]
-          }
-        }
-        p.parentContainer = t;
-        t.addWidget(p, o) 
+        t.container.addWidget(c, c.props.mode) 
       }
     }
   }

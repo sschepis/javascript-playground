@@ -12,22 +12,14 @@ export default class ReactPhosphorCommandRegistry extends ReactPhosphorWidgetCon
   state: {
     addWidgetFunc: (t:any, c: any)
   }
+  static _registry
   constructor(props) {
     super(props)
-    this.container = new CommandRegistry()
+    this.container = ReactPhosphorCommandRegistry._registry = new CommandRegistry()
     this.container.id = this.props.id
     this.state = {
       addWidgetFunc:(t:any, c: any) => {
-        var p, o
-        if (Array.isArray(c)) {
-          p = c[0]
-          if(c.length > 1) {
-            o = c[1]
-          }
-        } else {
-          p = c
-        }
-        t.addCommand(p, o) 
+        t.container.addCommand(c.props.command, c.props.options) 
       }
     }
   }
@@ -40,14 +32,16 @@ export class ReactPhosphorCommandPalette extends ReactPhosphorWidgetContainer {
     registry?: any
   }
   state: {
-    addWidgetFunc: (t:any, c: any)
+    addWidgetFunc: any
   }
   constructor(props) {
     super(props)
-    this.container = new CommandPalette({commands:this.props.registry})
+    this.container = new CommandPalette({commands:ReactPhosphorCommandRegistry._registry})
     this.state = {
       addWidgetFunc:(t:any, c: any) => {
-        t.addItem(c) 
+        const command = c.props.command
+        const category = c.props.category
+        t.container.addItem({command, category}) 
       }
     }
   }
@@ -64,6 +58,7 @@ export class ReactPhosphorCommand extends ReactPhosphorWidget {
   props: {
     type?: any,
     command?: any,
+    mnemonic?: any,
     category?: any,
     options?: any,
     rank?: any,
@@ -75,6 +70,7 @@ export class ReactPhosphorCommand extends ReactPhosphorWidget {
       type: this.props.type,
       command: this.props.command,
       category: this.props.category,
+      mnemonic: this.props.mnemonic,
       options: this.props.options,
       rank: this.props.rank,
       args: this.props.args

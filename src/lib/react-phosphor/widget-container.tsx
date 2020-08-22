@@ -9,13 +9,12 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
   container: any
   props: {
     id: any,
-    containerClass?: any,
-    contextStore?: any,
-    dynamicChildren: any,
-    addWidgetFunc?: any,
-    containerCreated?: any,
-    containerDidMount?: any,
-    children: any
+    containerClass: any,
+    contextStore: any,
+    addWidgetFunc: any,
+    containerCreated: any,
+    containerDidMount: any,
+    children?: any
   }
   widgetInfos: Array<{ node: any, component: any }>
   constructor(props) {
@@ -24,18 +23,19 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
     if(this.props.containerClass) {
       this.container = new this.props.containerClass(this.props.contextStore)
       this.container.id = this.props.id
-    }
-    if(this.props.containerCreated) {
-      this.props.containerCreated(this, this.container)
+      if(this.props.containerCreated) {
+        this.props.containerCreated(this)
+      }
     }
   }
 
   componentDidMount() {
     let widgetInfos = []
-    for (let component of this.props.children) {
+
+    var cs = Array.isArray(this.props.children) ? this.props.children : [ this.props.children ]
+    cs.forEach(comp => {
       let node = document.createElement("div")
-      let widget = new WrapperWidget(component.constructor.name, node)
-      console.log(component.constructor.name)
+      let widget = new WrapperWidget(comp.props.id, node)
 
       var p = null, s = null
       try {
@@ -46,17 +46,20 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
       const sawFunc: any = s
 
       if(pawFunc) {
-        pawFunc(this.container, widget)
+        pawFunc(this, widget)
       } else if(sawFunc) {
-        sawFunc(this.container, widget)
+        sawFunc(this, widget)
+      } else {
+        this.container.addWidget(widget)
       }
-      const comp = Array.isArray(component) ? component[0] : component
-      widgetInfos.push({node, comp})
-    }
-    this.widgetInfos = widgetInfos
+      const component = Array.isArray(comp) ? comp[0] : comp
+      widgetInfos.push({node, component})
+      this.widgetInfos = widgetInfos
+    })
+
     Widget.attach(this.container, this.elem);
     if(this.props.containerDidMount) {
-      this.props.containerDidMount(this, this.container, this.elem)
+      this.props.containerDidMount(this)
     }
   }
 

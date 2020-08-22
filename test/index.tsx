@@ -1,38 +1,73 @@
 import React, {h, Component} from 'react'
 import {render} from 'react-dom'
-import {Widget} from "@phosphor/widgets"
+import {Widget, BoxPanel, DockPanel} from "@phosphor/widgets"
+import { Message } from '@phosphor/messaging'
 
 import {
+  ReactPhosphorWidget,
+  ReactPhosphorWidgetContainer,
   ReactPhosphorBoxPanel,
-  ReactPhosphorWidget
+  ReactPhosphorDockPanel
 } from '../src/lib/react-phosphor'
 
-export default class BoxPanelTest extends Component {
+class ContentWidget extends Widget {
+  static createNode(): HTMLElement {
+    return document.createElement('div');
+  }
+  constructor(name: string) {
+    super({ node: ContentWidget.createNode() });
+  }
+  protected onActivateRequest(msg: Message): void {
+    if (this.isAttached) {
+      this.node.focus();
+    }
+  }
+}
+
+export default class WidgetContainerTest extends Component {
+  state: {
+    boxPanelContextStore: {
+      direction: any,
+      spacing: any
+    },
+    widgetContextStore: any,
+    dockPanelContextStore: any
+  }
   constructor(props: any) {
     super(props)
+    this.state = {
+      boxPanelContextStore: {
+        direction: 'left-to-right',
+        spacing: 0
+      },
+      widgetContextStore: undefined,
+      dockPanelContextStore: undefined
+    }
+  }
+
+  containerCreated() {
+    console.log('container Created')
+  }
+
+  containerDidMount() {
+    console.log('container Did Mount')
   }
 
   widgetCreated() {
-    console.log('widgetCreated')
+    console.log('widget Created')
   }
 
   widgetDidMount() {
-    console.log('widgetDidMount')
+    console.log('widget Did Mount')
   }
 
   render() {
-
     return (<div>
-      <ReactPhosphorBoxPanel direction={'left-to-right'} spacing={0} id={'main'}>
-        <ReactPhosphorWidget 
-          id={'widget'}
-          contextStore={{}}
-          elementClass={Widget} 
-          widgetCreated={this.widgetCreated}
-          widgetDidMount={this.widgetDidMount} />
-      </ReactPhosphorBoxPanel>
+
+\
+
     </div>)
   }
 }
 
-render(<BoxPanelTest />, document.getElementById('app'))
+render(<WidgetContainerTest />, document.getElementById('app'))

@@ -4,7 +4,6 @@ import ReactPhosphorWidgetContainer from './widget-container'
 export default class ReactPhosphorBoxPanel extends ReactPhosphorWidgetContainer {
   props: {
     id: any,
-    dynamicChildren?: any,
     children: any,
     direction: any,
     spacing?: any
@@ -15,7 +14,9 @@ export default class ReactPhosphorBoxPanel extends ReactPhosphorWidgetContainer 
   constructor(props: any) {
     super(props)
     this.state = {
-      addWidgetFunc:(t:any, c: any) => t.addWidget(c)
+      addWidgetFunc:(t:any, c: any) => {
+        t.container.addWidget(c)
+      }
     }
     this.container = new BoxPanel({ direction: this.props.direction, spacing: this.props.spacing })
     this.container.id = this.props.id

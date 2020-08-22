@@ -13,6 +13,11 @@ import {
   ReactPhosphorCommandPalette
 } from '../lib/react-phosphor'
 
+import CompiledOutputWidget from '../layouts/compiled-output'
+import ConsoleOutputWidget from '../layouts/console-output'
+import CSSdInputWidget from '../layouts/css-input'
+import HTMLInputWidget from '../layouts/html-input'
+import JSInputWidget from '../layouts/js-input'
 
 export default class JavascriptPlayground extends Component {
   state: {
@@ -41,60 +46,54 @@ export default class JavascriptPlayground extends Component {
     return (<div>
       <div style={classes} id='root' />
       <ReactPhosphorCommandRegistry id="commandRegistry" >
-
         <ReactPhosphorCommand command={'jsplayground:new-sketch'} options={opt('New Sketch', 0)} />
         <ReactPhosphorCommand command={'jsplayground:open-sketch'} options={opt('Open Sketch', 0)} />
         <ReactPhosphorCommand command={'jsplayground:clone-sketch'} options={opt('Clone Sketch', 0)} />
         <ReactPhosphorCommand command={'jsplayground:settings'} options={opt('Settings', 0)} />
         <ReactPhosphorCommand command={'sketch:run-sketch'} options={opt('Run Sketch', 1)} />
         <ReactPhosphorCommand command={'sketch:live-mode'} options={opt('Toggle Live Mode', 1)} />
-        <ReactPhosphorCommand command={'save-dock-layout'} options={
-          opt(['Save Layout', 'Save the current dock layout'], undefined)
-        } />
-        <ReactPhosphorCommand command={'restore-dock-layout'} options={
-          opt(['Restore Layout', 'Restore the current dock layout'], undefined)
-        } />
-
-        <ReactPhosphorCommandPalette id={'palette'}>
-          <ReactPhosphorCommand command={'jsplayground:new-sketch'} category={'Workspace'}/>
-          <ReactPhosphorCommand command={'jsplayground:open-sketch'} category={'Workspace'}/>
-          <ReactPhosphorCommand command={'jsplayground:clone-sketch'} category={'Workspace'}/>
-          <ReactPhosphorCommand command={'jsplayground:settings'} category={'Workspace'}/>
-          <ReactPhosphorCommand command={'sketch:run-sketch'} category={'Sketch'}/>
-          <ReactPhosphorCommand command={'sketch:live-mode'} category={'Sketch'}/>
-          <ReactPhosphorCommand command={'save-dock-layout'} category={'Dock Layout'} rank={0}/>
-        </ReactPhosphorCommandPalette>
-
-        <ReactPhosphorMenuBar id={'menu'}>
-          <ReactPhosphorMenu label={'Workspace'} mnemonic={0}>
-            <ReactPhosphorCommand command={'jsplayground:new-sketch'}/>
-            <ReactPhosphorCommand command={'jsplayground:open-sketch'}/>
-            <ReactPhosphorCommand command={'jsplayground:clone-sketch'}/>
-            <ReactPhosphorCommand type={'separator'}/>
-            <ReactPhosphorCommand command={'jsplayground:settings'}/>
-          </ReactPhosphorMenu>
-          <ReactPhosphorMenu label={'Sketch'} mnemonic={1}>
-            <ReactPhosphorCommand command={'sketch:run-sketch'}/>
-            <ReactPhosphorCommand type={'separator'}/>
-            <ReactPhosphorCommand command={'sketch:live-mode'}/>
-          </ReactPhosphorMenu>
-        </ReactPhosphorMenuBar>
-
-        <ReactPhosphorContextMenu />
-
+        <ReactPhosphorCommand command={'save-dock-layout'} options={opt(['Save Layout', 
+        'Save the current dock layout'], undefined)}/>
+        <ReactPhosphorCommand command={'restore-dock-layout'} options={opt(['Restore Layout',
+        'Restore the current dock layout'], undefined)}/>
       </ReactPhosphorCommandRegistry>
+      
+      <ReactPhosphorCommandPalette id={'palette'}>
+        <ReactPhosphorCommand command={'jsplayground:new-sketch'} category={'Workspace'}/>
+        <ReactPhosphorCommand command={'jsplayground:open-sketch'} category={'Workspace'}/>
+        <ReactPhosphorCommand command={'jsplayground:clone-sketch'} category={'Workspace'}/>
+        <ReactPhosphorCommand command={'jsplayground:settings'} category={'Workspace'}/>
+        <ReactPhosphorCommand command={'sketch:run-sketch'} category={'Sketch'}/>
+        <ReactPhosphorCommand command={'sketch:live-mode'} category={'Sketch'}/>
+        <ReactPhosphorCommand command={'save-dock-layout'} category={'Dock Layout'} rank={0}/>
+      </ReactPhosphorCommandPalette>
+
+      <ReactPhosphorMenuBar id={'menu'}>
+        <ReactPhosphorMenu label={'Workspace'} mnemonic={0} />
+        <ReactPhosphorCommand mnemonic={0} command={'jsplayground:new-sketch'}/>
+        <ReactPhosphorCommand mnemonic={0} command={'jsplayground:open-sketch'}/>
+        <ReactPhosphorCommand mnemonic={0} command={'jsplayground:clone-sketch'}/>
+        <ReactPhosphorCommand type={'separator'}/>
+        <ReactPhosphorCommand mnemonic={0} command={'jsplayground:settings'}/>
+        <ReactPhosphorMenu label={'Sketch'} mnemonic={1} />
+        <ReactPhosphorCommand mnemonic={0} command={'sketch:run-sketch'}/>
+        <ReactPhosphorCommand type={'separator'}/>
+        <ReactPhosphorCommand mnemonic={0} command={'sketch:live-mode'}/>
+      </ReactPhosphorMenuBar>
+
+      <ReactPhosphorContextMenu />
 
       <ReactPhosphorBoxPanel direction={'left-to-right'} spacing={0} id={'main'}>
-        <ReactPhosphorDockPanel id='dock' title={{label:'Output'}}>
-          <ReactPhosphorDockPanel id='compiled-output' title={{label:'Output'}} mode={'split-right'}>
-            <ReactPhosphorDockPanel id='html-input' title={{label:'HTML'}}  mode={'split-right'}>
-              <ReactPhosphorDockPanel id='js-input' title={{label:'JS'}}  mode={'split-top'}/>
-              <ReactPhosphorDockPanel id='css-input' title={{label:'CSS'}}  mode={'split-left'}/>
-            </ReactPhosphorDockPanel>
-          </ReactPhosphorDockPanel>
-        </ReactPhosphorDockPanel>
-        <ReactPhosphorDockPanel id='console-output' title={{label:'Console'}} mode={'split-bottom'}/>
       </ReactPhosphorBoxPanel>
+
+      <ReactPhosphorDockPanel id='dock' title={{label:'Output'}}>
+        <CompiledOutputWidget id="compiled-output" />
+        <ConsoleOutputWidget id="console-output" />
+        <CSSdInputWidget id="css-input" />
+        <HTMLInputWidget id="html-input" />
+        <JSInputWidget id="js-input" />
+      </ReactPhosphorDockPanel>
+
     </div>)
   }
 }

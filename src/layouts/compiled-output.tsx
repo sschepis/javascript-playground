@@ -1,23 +1,36 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
+import ReactPhosphorWidget from '../lib/react-phosphor/widget'
 
-export default class CompiledOutputWidget extends Widget {
-  static createNode(): HTMLElement {
-    let node = document.createElement('div')
-    return node;
+export default class CompiledOutputWidget extends ReactPhosphorWidget {
+  props: {
+    id: any,
+    widgetCreated?: any,
+    widgetDidMount?: any,
+    children?: any
   }
-  constructor(name: string) {
-    super({ node: CompiledOutputWidget.createNode() })
-    this.setFlag(Widget.Flag.DisallowLayout)
-    this.addClass('content')
-    this.addClass(name.toLowerCase())
-    this.title.label = name
-    this.title.closable = true
-    this.title.caption = `Long description for: ${name}`
+  constructor(props) {
+    super(Object.assign(props, {
+      node: document.createElement('div')}
+    ))
+    this.widget.setFlag(Widget.Flag.DisallowLayout)
+    this.widget.addClass('content')
+    this.widget.addClass(props.name.toLowerCase())
+    this.widget.title.label = props.title.label
+    this.widget.title.closable = props.title.closable
+    this.widget.title.caption = props.title.caption
   }
+  
+  get widget() {
+    if(!super.widget) {
+      super.widget = new Widget()
+    }
+    return super.widget
+  }
+
   protected onActivateRequest(msg: Message): void {
-    if (this.isAttached) {
-      this.node.focus()
+    if (this.widget.isAttached) {
+      this.widget.node.focus()
     }
   }
 }
