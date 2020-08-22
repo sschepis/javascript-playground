@@ -63,8 +63,7 @@ export class ReactPhosphorCommand extends ReactPhosphorWidget {
     category?: any,
     options?: any,
     rank?: any,
-    args?: any,
-    attach: any
+    args?: any
   }
   constructor(props: any) {
     super(Object.assign(props, {attach:false}))
