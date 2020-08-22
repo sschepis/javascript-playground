@@ -36,6 +36,7 @@ export class ReactPhosphorCommandPalette extends ReactPhosphorWidgetContainer {
   }
   constructor(props) {
     super(props)
+    const self = this
     this.container = new CommandPalette({commands:ReactPhosphorCommandRegistry._registry})
     this.state = {
       addWidgetFunc:(t:any, c: any) => {
@@ -62,10 +63,11 @@ export class ReactPhosphorCommand extends ReactPhosphorWidget {
     category?: any,
     options?: any,
     rank?: any,
-    args?: any
+    args?: any,
+    attach: any
   }
   constructor(props: any) {
-    super(props)
+    super(Object.assign(props, {attach:false}))
     this.widget = new PhosphorCommand({
       type: this.props.type,
       command: this.props.command,

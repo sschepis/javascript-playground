@@ -34,8 +34,10 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
 
     var cs = Array.isArray(this.props.children) ? this.props.children : [ this.props.children ]
     cs.forEach(comp => {
+      if(!comp) return;
       let node = document.createElement("div")
-      let widget = new WrapperWidget(comp.props.id, node)
+      let nm = comp.constructor.name
+      let widget = new WrapperWidget(nm, node)
 
       var p = null, s = null
       try {
@@ -46,9 +48,9 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
       const sawFunc: any = s
 
       if(pawFunc) {
-        pawFunc(this, widget)
+        pawFunc(this, comp)
       } else if(sawFunc) {
-        sawFunc(this, widget)
+        sawFunc(this, comp)
       } else {
         this.container.addWidget(widget)
       }
