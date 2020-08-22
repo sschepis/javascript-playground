@@ -1,0 +1,72 @@
+{
+  "_from": "@phosphor/default-theme@^0.1.8",
+  "_id": "@phosphor/default-theme@0.1.8",
+  "_inBundle": false,
+  "_integrity": "sha512-OcIRyGkZs/7vPTcA3/8h3vQt8m+pZdG9e1S7W26ZGmwwQYKvxX8XoRWCQ5zkGYX1XFwlNMvtJUFTdGjDM8CZOw==",
+  "_location": "/@phosphor/default-theme",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@phosphor/default-theme@^0.1.8",
+    "name": "@phosphor/default-theme",
+    "escapedName": "@phosphor%2fdefault-theme",
+    "scope": "@phosphor",
+    "rawSpec": "^0.1.8",
+    "saveSpec": null,
+    "fetchSpec": "^0.1.8"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@phosphor/default-theme/-/default-theme-0.1.8.tgz",
+  "_shasum": "218b3dc4d70d606257e57aa349e75c68e338cc3d",
+  "_spec": "@phosphor/default-theme@^0.1.8",
+  "_where": "/storage/Development/javascript-playground",
+  "author": {
+    "name": "S. Chris Colbert",
+    "email": "sccolbert@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/phosphorjs/phosphor/issues"
+  },
+  "bundleDependencies": false,
+  "contributors": [
+    {
+      "name": "A. Darian",
+      "email": "git@darian.af"
+    },
+    {
+      "name": "Dave Willmer",
+      "email": "dave.willmer@gmail.com"
+    },
+    {
+      "name": "S. Chris Colbert",
+      "email": "sccolbert@gmail.com"
+    },
+    {
+      "name": "Steven Silvester",
+      "email": "steven.silvester@gmail.com"
+    }
+  ],
+  "dependencies": {
+    "@phosphor/dragdrop": "^1.4.1",
+    "@phosphor/widgets": "^1.9.3"
+  },
+  "deprecated": false,
+  "description": "PhosphorJS - Default Theme",
+  "files": [
+    "images/*.png",
+    "style/*.css"
+  ],
+  "gitHead": "d0b6328d41bf0d1a781a6db589734800ea18401a",
+  "homepage": "https://github.com/phosphorjs/phosphor",
+  "license": "BSD-3-Clause",
+  "name": "@phosphor/default-theme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phosphorjs/phosphor.git"
+  },
+  "style": "style/index.css",
+  "version": "0.1.8"
+}

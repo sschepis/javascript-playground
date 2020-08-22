@@ -7,7 +7,10 @@ import ReactPhosphorDockPanel from './dock-panel'
 import ReactPhosphorMenuBar, {ReactPhosphorMenu,ReactPhosphorContextMenu} from './menu-bar'
 import ReactPhosphorCommandRegistry, {ReactPhosphorCommandPalette, ReactPhosphorCommand} from './command-registry'
 
+import css from './phosphor.css'
+
 export {
+  css,
   IWidgetInfo, 
   IWidgetContainerState, 
   IWidgetContainerProps, 
