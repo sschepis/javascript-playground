@@ -24,6 +24,8 @@ export default class ReactPhosphorCommandRegistry extends ReactPhosphorWidgetCon
           if(c.length > 1) {
             o = c[1]
           }
+        } else {
+          p = c
         }
         t.addCommand(p, o) 
       }
@@ -51,6 +53,13 @@ export class ReactPhosphorCommandPalette extends ReactPhosphorWidgetContainer {
   }
 }
 
+class PhosphorCommand {
+  props
+  constructor(p) {
+    this.props = Object.assign({}, p)
+  }
+}
+
 export class ReactPhosphorCommand extends ReactPhosphorWidget {
   props: {
     type?: any,
@@ -62,13 +71,13 @@ export class ReactPhosphorCommand extends ReactPhosphorWidget {
   }
   constructor(props: any) {
     super(props)
-    this.widget = {
-      typs: this.props.type,
+    this.widget = new PhosphorCommand({
+      type: this.props.type,
       command: this.props.command,
       category: this.props.category,
       options: this.props.options,
       rank: this.props.rank,
       args: this.props.args
-    }
+    })
   }
 }

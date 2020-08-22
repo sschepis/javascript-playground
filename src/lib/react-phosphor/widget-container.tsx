@@ -13,7 +13,8 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
     contextStore?: any,
     dynamicChildren: any,
     addWidgetFunc?: any,
-    onContainerCreated?: any,
+    containerCreated?: any,
+    containerDidMount?: any,
     children: any
   }
   widgetInfos: Array<{ node: any, component: any }>
@@ -24,14 +25,14 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
       this.container = new this.props.containerClass(this.props.contextStore)
       this.container.id = this.props.id
     }
-    if(this.props.onContainerCreated) {
-      this.props.onContainerCreated(this, this.container)
+    if(this.props.containerCreated) {
+      this.props.containerCreated(this, this.container)
     }
   }
 
   componentDidMount() {
     let widgetInfos = []
-    for (let component of this.props.dynamicChildren) {
+    for (let component of this.props.children) {
       let node = document.createElement("div")
       let widget = new WrapperWidget(component.constructor.name, node)
       console.log(component.constructor.name)
@@ -54,6 +55,9 @@ export default class ReactPhosphorWidgetContainer extends React.PureComponent<IW
     }
     this.widgetInfos = widgetInfos
     Widget.attach(this.container, this.elem);
+    if(this.props.containerDidMount) {
+      this.props.containerDidMount(this, this.container, this.elem)
+    }
   }
 
   render() {

@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-
+import React, { h, Component } from 'react'
+import { render } from 'react-dom'
 import classes from './index.css'
 
 import {
@@ -35,7 +35,7 @@ export default class JavascriptPlayground extends Component {
       const o:any = {label}
       if(caption) { o.caption=caption }
       if(m) { o.mnemonic=m }
-      o.execute = () => e ? e(m) : console.log(t)
+      o.execute = () => e ? e(this) : console.log(t)
       return o
     }
     return (<div>
@@ -49,21 +49,10 @@ export default class JavascriptPlayground extends Component {
         <ReactPhosphorCommand command={'sketch:run-sketch'} options={opt('Run Sketch', 1)} />
         <ReactPhosphorCommand command={'sketch:live-mode'} options={opt('Toggle Live Mode', 1)} />
         <ReactPhosphorCommand command={'save-dock-layout'} options={
-          opt(['Save Layout', 'Save the current dock layout'], undefined, (cmd) => {
-            this.state.savedLayouts.push(cmd.saveLayout())
-            cmd.container.addItem({
-              command: 'restore-dock-layout',
-              category: 'Dock Layout',
-              args: { index: this.state.savedLayouts.length - 1 }
-            })
-          })
+          opt(['Save Layout', 'Save the current dock layout'], undefined)
         } />
         <ReactPhosphorCommand command={'restore-dock-layout'} options={
-          opt(
-            args => `Restore Layout ${args.index as number}`, 
-            undefined, 
-            cmd => cmd.restoreLayout(this.state.savedLayouts[cmd.index as number])
-          )
+          opt(['Restore Layout', 'Restore the current dock layout'], undefined)
         } />
 
         <ReactPhosphorCommandPalette id={'palette'}>
@@ -109,3 +98,5 @@ export default class JavascriptPlayground extends Component {
     </div>)
   }
 }
+
+render(<JavascriptPlayground />, document.getElementById('app'))

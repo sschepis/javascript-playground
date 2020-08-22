@@ -1,1 +1,1 @@
-require('./layouts/phosphor.jsx')
+require('./layouts/index.jsx')
