@@ -57,6 +57,8 @@ export class ReactPhosphorCommand extends ReactPhosphorWidget {
     command?: any,
     category?: any,
     options?: any,
+    rank?: any,
+    args?: any
   }
   constructor(props: any) {
     super(props)
@@ -64,7 +66,9 @@ export class ReactPhosphorCommand extends ReactPhosphorWidget {
       typs: this.props.type,
       command: this.props.command,
       category: this.props.category,
-      options: this.props.options
+      options: this.props.options,
+      rank: this.props.rank,
+      args: this.props.args
     }
   }
 }

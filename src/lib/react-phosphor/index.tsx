@@ -3,8 +3,8 @@ import WrapperWidget from './wrapper-widget'
 import ReactPhosphorWidgetContainer from './widget-container'
 import ReactPhosphorWidget from './widget'
 import ReactPhosphorBoxPanel from './box-panel'
-import ReactPhosphorDockPanel, {ReactPhosphorDockWidget} from './dock-panel'
-import ReactPhosphorMenuBar, {ReactPhosphorMenu} from './menu-bar'
+import ReactPhosphorDockPanel from './dock-panel'
+import ReactPhosphorMenuBar, {ReactPhosphorMenu,ReactPhosphorContextMenu} from './menu-bar'
 import ReactPhosphorCommandRegistry, {ReactPhosphorCommandPalette, ReactPhosphorCommand} from './command-registry'
 
 export {
@@ -18,9 +18,9 @@ export {
   ReactPhosphorWidget,
   ReactPhosphorBoxPanel,
   ReactPhosphorDockPanel,
-  ReactPhosphorDockWidget,
   ReactPhosphorMenuBar,
   ReactPhosphorMenu,
+  ReactPhosphorContextMenu,
   ReactPhosphorCommandRegistry,
   ReactPhosphorCommandPalette,
   ReactPhosphorCommand
