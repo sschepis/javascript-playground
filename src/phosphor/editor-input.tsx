@@ -9,7 +9,7 @@ import 'ace-builds/src-noconflict/mode-javascript'
 import 'ace-builds/src-noconflict/theme-monokai'
 import 'ace-builds/src-noconflict/ext-settings_menu.js'
 import 'ace-builds/src-noconflict/ext-statusbar.js'
-import { ThemeProvider } from 'react-bootstrap'
+import { debounce } from '../components/js-playground-engine'
 
 
 export abstract class EditorInputWidget extends Widget {
@@ -21,11 +21,14 @@ export abstract class EditorInputWidget extends Widget {
   abstract editorChanged(state: any);
   abstract stateUpdated(state: any);
   editor
+  updatingState
   constructor(props) {
     super(Object.assign(props, {
       node: EditorInputWidget.contentNode(props.id)}
     ))
+    this.updatingState = true
     this.initWidget(props)
+    this.updatingState = false
   }
   initWidget(props) {
     const self = this
@@ -37,9 +40,14 @@ export abstract class EditorInputWidget extends Widget {
     this.title.caption = props.label
     this.initEditor()
     document.addEventListener('state_updated', (e:any) => {
+      console.log('EditorInputWidget', 'state_updated')
+      this.updatingState = true
       this.stateUpdated(e)
+      this.updatingState = false
     })
     this.editor.on('change', (delta) => {
+      if (this.updatingState) return
+      console.log('EditorInputWidget', 'change')
       self.editorChanged(delta)
     })
   }
@@ -62,9 +70,7 @@ export class HTMLInputWidget extends EditorInputWidget {
     super(Object.assign(props, { id: 'html-input', label: 'HTML Input'}))
   }
   protected onActivateRequest(msg: Message): void {
-    if (this.isAttached) {
-      this.node.focus()
-    }
+    if (this.isAttached) { this.node.focus() }
   }
   initEditor() {
     super.initEditor()
@@ -78,10 +84,11 @@ export class HTMLInputWidget extends EditorInputWidget {
     }
   }
   editorChanged(delta:any) {
-    const detail = {
-      html: this.editor.getValue()
+    const debounceEditorChanges = () => {
+      const detail = { html: this.editor.getValue() }
+      this.dispatch('inputs_updated', detail)
     }
-    this.dispatch('inputs_updated', detail)
+    debounce(debounceEditorChanges, 2000)()
   }
 }
 
@@ -95,9 +102,7 @@ export class CSSInputWidget extends EditorInputWidget {
     this.editor.session.setMode("ace/mode/css");
   }
   protected onActivateRequest(msg: Message): void {
-    if (this.isAttached) {
-      this.node.focus()
-    }
+    if (this.isAttached) { this.node.focus() }
   }
   stateUpdated(state: any) {
     const v = this.editor.getValue()
@@ -106,10 +111,11 @@ export class CSSInputWidget extends EditorInputWidget {
     }
   }
   editorChanged(delta:any) {
-    const detail = {
-      css: this.editor.getValue()
+    const debounceEditorChanges = () => {
+      const detail = { css: this.editor.getValue() }
+      this.dispatch('inputs_updated', detail)
     }
-    this.dispatch('inputs_updated', detail)
+    debounce(debounceEditorChanges, 2000)()
   }
 }
 
@@ -123,9 +129,7 @@ export class JSInputWidget extends EditorInputWidget {
     this.editor.session.setMode("ace/mode/javascript");
   }
   protected onActivateRequest(msg: Message): void {
-    if (this.isAttached) {
-      this.node.focus()
-    }
+    if (this.isAttached) { this.node.focus() }
   }
   stateUpdated(state: any) {
     const v = this.editor.getValue()
@@ -134,10 +138,11 @@ export class JSInputWidget extends EditorInputWidget {
     }
   }
   editorChanged(delta:any) {
-    const detail = {
-      js: this.editor.getValue()
+    const debounceEditorChanges = () => {
+      const detail = { js: this.editor.getValue() }
+      this.dispatch('inputs_updated', detail)
     }
-    this.dispatch('inputs_updated', detail)
+    debounce(debounceEditorChanges, 2000)()
   }
 }
 

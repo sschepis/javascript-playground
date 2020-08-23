@@ -12,7 +12,7 @@ export const ser = (k,v = null) => {
 const debounceTimes = {}
 const debounceTimerRefs = {}
 
-function debounce(f, t) {
+export function debounce(f, t) {
   const fName = f.name ? f.name : 'anonymous'
   function funcOut() {
       const timeNow = Date.now()
@@ -48,23 +48,12 @@ export default class JSPlaygroundEngine {
     js? : string,
     csslibs? : string | Array<string>,
     jslibs? : string | Array<string>,
-    refreshOnUpdate? : boolean,
-    onSerialize?:any
+    refreshOnUpdate? : boolean
   }
 
   constructor (props) {
-    this.props = Object.assign(this.props || {}, props)
-  }
-
-  init() {
-    var s
-    if(this.props.onSerialize) {
-      s = this.props.onSerialize('jsplayground')
-    } else s = ser('jsplayground')
-    if (s) {
-      this.setState(s)
-    }
-    this.refresh()
+    this.props = Object.assign({}, props)
+    this.state = Object.assign({}, props)
   }
 
   dispatch (e, p = null) {
@@ -118,33 +107,18 @@ export default class JSPlaygroundEngine {
     </html>`
   }
 
-  saveAndRefresh() {
-    const self = this
-    const o = {
-      html : this.state.html,
-      css : this.state.css,
-      js : this.state.js,
-      jslibs: this.state.jslibs,
-      csslibs: this.state.csslibs,
-      compiledPage: this.compilePage()
-    }
-    if(this.props.onSerialize) {
-      this.props.onSerialize('jsplayground', o)
-    } else ser('jsplayground', o)
-    this.setState({ compiledPage: o.compiledPage })
-    self.refresh()
-  }
-
   refresh() {
-    this.dispatch('sketch_refresh')
+    this.setState({
+      html : this.props.html,
+      css : this.props.css,
+      js : this.props.js,
+      jslibs: this.props.jslibs,
+      csslibs: this.props.csslibs,
+      compiledPage: this.compilePage()
+    })
     if(this.props.onRefresh) {
       this.props.onRefresh(this.state)
     }
-  }
-
-  handleChange (v) {
-    this.setState(v)
-    debounce(()=>this.saveAndRefresh(), 2000)()
   }
 
 }

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom'
 // import ConsolePanel from './components/console-panel'
 
 import { PhosphorController, styles } from './phosphor/index'
-import JSPlaygroundEngine, { ser } from './components/js-playground-engine'
+import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
 
 export default class JavascriptPlayground extends Component {
   state: {
@@ -12,8 +12,9 @@ export default class JavascriptPlayground extends Component {
     html,
     css,
     js,
-    compiledOutput,
-    onRefresh
+    jslibs,
+    csslibs,
+    compiledPage
   }
   consoleEl
   updatedEvent
@@ -25,30 +26,58 @@ export default class JavascriptPlayground extends Component {
       html: '',
       css: '',
       js: '',
-      compiledOutput: ''
+      jslibs: [],
+      csslibs: [],
+      compiledPage: '',
     }
-    this.state = Object.assign(this.state, ser('jsplayground'))
     this.handleRefresh = this.handleRefresh.bind(this)
-    const self = this
-    this.engine = new JSPlaygroundEngine(Object.assign({
-      onRefresh: (e) => this.handleRefresh(e)
-    }, this.state))
   }
 
-  componentDidMount() {
-    document.addEventListener('inputs_updated', (e:any) => {
-      this.setState(e.detail)
-      this.engine = new JSPlaygroundEngine(Object.assign({
-        onRefresh: (e) => this.handleRefresh(e)
-      }, this.state))
-    })
-    this.engine.init()
+  rebuildEngine() {
+    console.log('JavascriptPlayground', 'rebuildEngine')
+    this.engine = new JSPlaygroundEngine(Object.assign(this.state, {
+      onRefresh: (e) => {
+        console.log('JavascriptPlayground', 'handleRefresh')
+        this.setComponentState(e)
+        this.dispatch('state_updated', e)
+      }
+    }))
     this.engine.refresh()
   }
 
+  componentDidMount() {
+    const self = this
+    console.log('JavascriptPlayground', 'componentDidMount')
+    this.state = Object.assign(this.state, ser('jsplayground'))
+    document.addEventListener('inputs_updated', 
+      (e:any) => this.inputsUpdated(e)
+    )
+    document.addEventListener('state_updated', 
+      (e:any) => this.stateUpdated(e)
+    )
+    this.dispatch('state_updated', this.state)
+  }
+
+  stateUpdated(e:any) {
+    ser('jsplayground', e.detail)
+  }
+
+  inputsUpdated(e:any) {
+    this.setComponentState(e.detail)
+    const debounceRebuild = () => {
+      this.rebuildEngine()
+    }
+    debounce(debounceRebuild, 100)()    
+  }
+
+  setComponentState(s) {
+    this.setState(s)
+  }
+
   handleRefresh(o) {
-    this.setState(o)
-    this.dispatch('state_updated', o 
+    console.log('JavascriptPlayground', 'handleRefresh')
+    this.setComponentState(o)
+    this.dispatch('state_updated', o)
   }
 
   dispatch (e:any, p:any = null) {
