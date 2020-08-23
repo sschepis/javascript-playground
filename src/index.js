@@ -1,1 +1,0 @@
-require('./layouts/index.jsx')

@@ -12,6 +12,9 @@ import {
   BoxPanel
 } from '@phosphor/widgets';
 
+import index_css from './index.css'
+import content_css from './content.css'
+
 import HTMLInputWidget from '../src/layouts/html-input'
 import CSSInputWidget from '../src/layouts/css-input'
 import JSInputWidget from '../src/layouts/js-input'
@@ -49,9 +52,10 @@ class PhosphorController extends React.PureComponent {
   _dockPanel
   constructor(props) {
     super(props)
+    this._componentRef = React.createRef()
   }
   componentDidMount() {
-    function initPhosphorUI(): void {
+    const initPhosphorUI = () => {
       this.commandRegistry.addCommand('workspace:new', {
         label: 'New Tab',
         mnemonic: 0,
@@ -63,7 +67,7 @@ class PhosphorController extends React.PureComponent {
     
       this.commandRegistry.addCommand('workspace:open', {
         label: 'Close Tab',
-        mnemonic: 2,
+        mnemonic: 1,
         caption: 'Close the current tab',
         execute: () => {
           console.log('Close Tab');
@@ -106,7 +110,7 @@ class PhosphorController extends React.PureComponent {
         }
       });
 
-      function createMenu(label:any, mnem:any) {
+      const createMenu = (label:any, mnem:any) => {
         let menu1 = new Menu({commands:this.commandRegistry})
         menu1.title.label = label;
         menu1.title.mnemonic = mnem;
@@ -118,6 +122,9 @@ class PhosphorController extends React.PureComponent {
       createMenu('Sketch', 1);
     
       let palette = this.commandPalette
+      let contextMenu = this.contextMenu
+      var dock = this.dockPanel
+      
 
       palette.addItem({ command: 'workspace:new', category: 'Workspace' });
       palette.addItem({ command: 'workspace:clone', category: 'Workspace' });
@@ -126,43 +133,36 @@ class PhosphorController extends React.PureComponent {
       palette.addItem({ command: 'sketch:run', category: 'Sketch' });
       palette.addItem({ command: 'sketch:livemode', category: 'Sketch' });
 
-      palette.id = 'palette';
-    
-      let contextMenu = this.contextMenu
-    
       document.addEventListener('contextmenu', (event: MouseEvent) => {
         if (contextMenu.open(event)) {
           event.preventDefault();
         }
       });
    
-      contextMenu.addItem({ command: 'workspace:new', selector: '.p-CommandPalette'});
-      contextMenu.addItem({ command: 'workspace:clone',selector: '.p-CommandPalette'});
-      contextMenu.addItem({ command: 'workspace:open', selector: '.p-CommandPalette'});
-      contextMenu.addItem({ command: 'workspace:settings', selector: '.p-CommandPalette'});
-      contextMenu.addItem({ command: 'sketch:run', selector: '.p-CommandPalette' });
-      contextMenu.addItem({ command: 'sketch:livemode', selector: '.p-CommandPalette' });
-      contextMenu.addItem({ type: 'separator', selector: '.p-CommandPalette-input' });
+      // contextMenu.addItem({ command: 'workspace:new', selector: '.p-CommandPalette'});
+      // contextMenu.addItem({ command: 'workspace:clone',selector: '.p-CommandPalette'});
+      // contextMenu.addItem({ command: 'workspace:open', selector: '.p-CommandPalette'});
+      // contextMenu.addItem({ command: 'workspace:settings', selector: '.p-CommandPalette'});
+      // contextMenu.addItem({ command: 'sketch:run', selector: '.p-CommandPalette' });
+      // contextMenu.addItem({ command: 'sketch:livemode', selector: '.p-CommandPalette' });
+      // contextMenu.addItem({ type: 'separator', selector: '.p-CommandPalette-input' });
     
       document.addEventListener('keydown', (event: KeyboardEvent) => {
         this.commandRegistry.processKeydownEvent(event);
       });
     
-      let r1 = new ContentWidget('Red');
-      let b1 = new ContentWidget('Blue');
-      let g1 = new ContentWidget('Green');
-      let y1 = new ContentWidget('Yellow');
+      let outputWidget = new ContentWidget('Output');
+      let javascriptWidget = new ContentWidget('Javascript');
+      let consoleWidget = new ContentWidget('Console');
+      let cssWidget = new ContentWidget('CSS');
+      let htmlWidget = new ContentWidget('HTML');
     
-      let r2 = new ContentWidget('Red');
-      let b2 = new ContentWidget('Blue');
-
+      dock.addWidget(outputWidget);
+      dock.addWidget(consoleWidget, { mode: 'split-bottom', ref: outputWidget });
+      dock.addWidget(javascriptWidget, { mode: 'split-right', ref: consoleWidget });
     
-      dock.addWidget(r1);
-      dock.addWidget(b1, { mode: 'split-right', ref: r1 });
-      dock.addWidget(y1, { mode: 'split-bottom', ref: b1 });
-      dock.addWidget(g1, { mode: 'split-left', ref: y1 });
-      dock.addWidget(r2, { ref: b1 });
-      dock.addWidget(b2, { mode: 'split-right', ref: y1 });
+      dock.addWidget(cssWidget, { mode: 'split-bottom', ref: javascriptWidget });
+      dock.addWidget(htmlWidget, { mode: 'split-right', ref: cssWidget });
       dock.id = 'dock';
     
       let savedLayouts: DockPanel.ILayoutConfig[] = [];
@@ -194,8 +194,6 @@ class PhosphorController extends React.PureComponent {
         category: 'Dock Layout',
         rank: 0
       });
-    
-      let dock = this.dockPanel
 
       BoxPanel.setStretch(dock, 1);
       
@@ -208,13 +206,13 @@ class PhosphorController extends React.PureComponent {
     
       window.onresize = () => { main.update(); };
     
-      Widget.attach(bar, this.componentRef);
-      Widget.attach(main, this.componentRef);
+      Widget.attach(bar, document.body);
+      Widget.attach(main, document.body);
     }
     initPhosphorUI()
   }
   render() {
-    return (<div style={{width:'100%',height:'100%'}}/>)
+    return (<div style={{width:'0', height:'0'}}/>)
   }
 
   _componentRef
@@ -228,20 +226,23 @@ class PhosphorController extends React.PureComponent {
   get commandRegistry() {
     if(!this._commandRegistry) {
       this._commandRegistry = new CommandRegistry()
+      this._commandRegistry.id = 'registry'
     }
     return this._commandRegistry
   }
 
   get commandPalette() {
     if(!this._commandPalette) {
-      this._commandPalette = new CommandPalette({commands:this._commandRegistry})
+      this._commandPalette = new CommandPalette({commands:this.commandRegistry})
+      this._commandPalette.id = 'palette'
     }
     return this._commandPalette
   }
 
   get contextMenu() {
     if(!this._contextMenu) {
-      this._contextMenu = new ContextMenu({commands:this._commandRegistry})
+      this._contextMenu = new ContextMenu({commands:this.commandRegistry})
+      this._contextMenu.id = 'contextMenu'
     }
     return this._commandPalette
   }
