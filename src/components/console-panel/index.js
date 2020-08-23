@@ -1,6 +1,6 @@
 // import a CSS module
 import { h, Component } from 'react'
-import { Hook, Console } from '../../console-feed/index.d.ts'
+import { Hook, Console } from 'console-feed'
 
 import './index.css'
 

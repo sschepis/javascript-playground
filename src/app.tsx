@@ -1,10 +1,11 @@
 
 import React, { h, Component } from 'react'
 import ReactDOM from 'react-dom'
-// import ConsolePanel from './components/console-panel'
+import ConsolePanel from './components/console-panel'
 
 import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
+import 'regenerator-runtime/runtime'
 
 export default class JavascriptPlayground extends Component {
   state: {
@@ -95,6 +96,7 @@ export default class JavascriptPlayground extends Component {
   render() {
     return (<div style={styles}>
       <PhosphorController html={this.state.html} js={this.state.js} css={this.state.css} />
+    (React.createPortal({<ConsolePanel logs={this.state.logs} />}, this.consoleElement))
     </div>)
   }
 }
