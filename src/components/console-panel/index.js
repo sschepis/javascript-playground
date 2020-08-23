@@ -1,6 +1,6 @@
 // import a CSS module
-import React, { h, Component } from 'react'
-import { Hook, Console } from 'console-feed'
+import { h, Component } from 'react'
+import { Hook, Console } from '../../console-feed/index.d.ts'
 
 import './index.css'
 
@@ -33,7 +33,7 @@ export default class ConsolePanel extends Component {
         this.setState({ logs: [...this.getLogsObject(), log] })
         const doo = document.getElementById('console-panel')
         doo.scrollTop = doo.scrollHeight
-        this.setState({cssStyles:{overflow:'scroll'}})
+        this.setState({ cssStyles: { overflow: 'scroll' } })
       },
       false
     )
@@ -43,7 +43,7 @@ export default class ConsolePanel extends Component {
   render () {
     return (
       <div className='console-panel' id='console-panel' style={this.state.cssStyles}>
-        <Console logs={this.getLogsObject()} style={{border: '1px solid #eee'}} variant='dark' />
+        <Console logs={this.getLogsObject()} style={{ border: '1px solid #eee' }} variant='dark' />
       </div>
     )
   }

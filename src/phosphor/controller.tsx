@@ -21,11 +21,22 @@ export default class PhosphorController extends React.PureComponent {
   _menuBar
   _mainPanel
   _dockPanel
+  outputWidget
+  consoleWidget
+  javascriptWidget
+  cssWidget
+  htmlWidget
+  props: {
+    js: any,
+    css: any,
+    html: any
+  }
   constructor(props) {
     super(props)
     this._componentRef = React.createRef()
   }
   componentDidMount() {
+    const self = this
     const initPhosphorUI = (node:any) => {
       this.commandRegistry.addCommand('workspace:new', {
         label: 'New Tab',
@@ -115,18 +126,17 @@ export default class PhosphorController extends React.PureComponent {
         this.commandRegistry.processKeydownEvent(event);
       });
     
-      let outputWidget = new CompiledOutputWidget('Output');
-      let javascriptWidget = new JSInputWidget('Javascript');
-      let consoleWidget = new ConsoleOutputWidget('Console');
-      let cssWidget = new CSSInputWidget('CSS');
-      let htmlWidget = new HTMLInputWidget('HTML');
+      this.outputWidget = new CompiledOutputWidget('Output');
+      this.javascriptWidget = new JSInputWidget('Javascript', this.props.js);
+      this.consoleWidget = new ConsoleOutputWidget('Console');
+      this.cssWidget = new CSSInputWidget('CSS', this.props.css);
+      this.htmlWidget = new HTMLInputWidget('HTML', this.props.html);
 
-
-      dock.addWidget(outputWidget);
-      dock.addWidget(consoleWidget, { mode: 'split-bottom', ref: outputWidget });
-      dock.addWidget(javascriptWidget, { mode: 'split-right', ref: consoleWidget });
-      dock.addWidget(cssWidget, { mode: 'split-bottom', ref: javascriptWidget });
-      dock.addWidget(htmlWidget, { mode: 'split-right', ref: cssWidget });
+      dock.addWidget(this.outputWidget);
+      dock.addWidget(this.consoleWidget, { mode: 'split-bottom', ref: this.outputWidget });
+      dock.addWidget(this.javascriptWidget, { mode: 'split-right', ref: this.consoleWidget });
+      dock.addWidget(this.cssWidget, { mode: 'split-bottom', ref: this.javascriptWidget });
+      dock.addWidget(this.htmlWidget, { mode: 'split-right', ref: this.cssWidget });
 
       let savedLayouts: DockPanel.ILayoutConfig[] = [];
     

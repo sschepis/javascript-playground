@@ -7,15 +7,15 @@
   "browserslist": [
     "last 2 Chrome versions"
   ],
+  "staticPath": {
+    "source": "./assets",
+    "target": "./dist"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "parcel build index.html",
     "start": "parcel --https --port 1234 --cert cert.pem --key key.pem index.html",
     "server": "cd node_modules/gun; node examples/http.js"
-  },
-  "staticFiles": {
-    "staticPath": "./assets",
-    "watcherGlob": "**"
   },
   "devDependencies": {
     "@babel/core": "^7.11.1",
@@ -37,6 +37,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "jest": "^26.3.0",
     "node-sass": "^4.14.1",
+    "parcel-plugin-copy": "^1.0.2",
     "sass": "^1.26.10",
     "typescript": "^4.0.2"
   },

@@ -1,8 +1,7 @@
-import React, { Component } from 'react'
 
 const localStore = window.localStorage
 
-const ser = (k,v = null) => {
+export const ser = (k,v = null) => {
   if (!v) {
     const v = localStore.getItem(k)
     return JSON.parse(v)
@@ -33,7 +32,7 @@ function debounce(f, t) {
   return funcOut
 }
 
-export default class JSPlaygroundEngine extends Component {
+export default class JSPlaygroundEngine {
   state : {
     html : string,
     css : string,
@@ -44,23 +43,28 @@ export default class JSPlaygroundEngine extends Component {
   }
   props: {
     onRefresh? : any,
-    html : string,
-    css : string,
-    js : string,
-    csslibs : string | Array<string>,
-    jslibs : string | Array<string>,
-    refreshOnUpdate? : boolean
+    html? : string,
+    css? : string,
+    js? : string,
+    csslibs? : string | Array<string>,
+    jslibs? : string | Array<string>,
+    refreshOnUpdate? : boolean,
+    onSerialize?:any
   }
+
   constructor (props) {
-    super(props)
-    this.state = {
-      html : this.props.html,
-      css : this.props.css,
-      js : this.props.js,
-      jslibs: this.props.jslibs,
-      csslibs: this.props.csslibs,
-      compiledPage: ''
+    this.props = Object.assign(this.props || {}, props)
+  }
+
+  init() {
+    var s
+    if(this.props.onSerialize) {
+      s = this.props.onSerialize('jsplayground')
+    } else s = ser('jsplayground')
+    if (s) {
+      this.setState(s)
     }
+    this.refresh()
   }
 
   dispatch (e, p = null) {
@@ -68,15 +72,7 @@ export default class JSPlaygroundEngine extends Component {
   }
 
   setState(v) {
-    this.state = Object.assign(this.state, v);
-  }
-
-  componentDidMount() {
-    const s = ser('jsplayground')
-    if (s) {
-      this.setState(s)
-    }
-    this.refresh()
+    this.state = Object.assign(this.state || {}, v);
   }
 
   compilePage() {
@@ -132,7 +128,9 @@ export default class JSPlaygroundEngine extends Component {
       csslibs: this.state.csslibs,
       compiledPage: this.compilePage()
     }
-    ser('jsplayground', o)
+    if(this.props.onSerialize) {
+      this.props.onSerialize('jsplayground', o)
+    } else ser('jsplayground', o)
     this.setState({ compiledPage: o.compiledPage })
     self.refresh()
   }
@@ -148,7 +146,5 @@ export default class JSPlaygroundEngine extends Component {
     this.setState(v)
     debounce(()=>this.saveAndRefresh(), 2000)()
   }
-
-  render = () =>(<div style={{display:'none'}} />)
 
 }
