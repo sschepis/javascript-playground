@@ -1,7 +1,6 @@
 // import a CSS module
 import React, { h, Component } from 'react'
 import { Hook, Console } from 'console-feed'
-import TitleBar from '../title-bar'
 
 import './index.css'
 

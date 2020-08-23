@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "parcel build index.html",
+    "start": "parcel --https --port 1234 --cert cert.pem --key key.pem index.html",
+    "server": "cd node_modules/gun; node examples/http.js"
+  },
   "staticFiles": {
     "staticPath": "./assets",
     "watcherGlob": "**"
@@ -11,42 +21,55 @@
     "@babel/core": "^7.11.1",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-transform-runtime": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "cssnano": "^4.1.10",
-    "marked": "^1.1.1",
-    "parcel-plugin-inliner": "^1.0.14",
-    "parcel-plugin-static-files-copy": "^2.5.0",
-    "posthtml": "^0.13.2",
-    "typescript": "^3.9.7"
-  },
-  "scripts": {
-    "start": "parcel index.html",
-    "build": "parcel build index.html"
+    "eslint": "^7.6.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-config-standard-preact": "^1.1.6",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "^7.20.5",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^26.3.0",
+    "node-sass": "^4.14.1",
+    "sass": "^1.26.10",
+    "typescript": "^4.0.2"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.11.2",
+    "@gooddollar/react-native-webview-crypto": "0.0.20",
     "@phosphor/commands": "^1.7.2",
     "@phosphor/default-theme": "^0.1.8",
     "@phosphor/dragdrop": "^1.4.1",
     "@phosphor/messaging": "^1.3.0",
     "@phosphor/widgets": "^1.9.3",
     "@trendmicro/react-iframe": "^1.0.1",
+    "ace-builds": "^1.4.12",
     "app.css": "^0.1.2",
+    "b58": "^4.0.3",
     "bootstrap": "^4.5.2",
-    "console-feed": "^3.0.0",
+    "console-feed": "^3.0.1",
     "es6-promise": "^4.2.8",
     "font-awesome": "^4.7.0",
     "help": "^3.0.2",
-    "phosphor": "^0.7.1",
+    "jquery": "^3.5.1",
+    "jsonschema": "^1.2.6",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-ace": "^9.1.3",
     "react-bootstrap": "^1.3.0",
     "react-dom": "^16.13.1",
-    "react-iframe": "^1.8.0"
+    "react-iframe": "^1.8.0",
+    "regenerator-runtime": "^0.13.7",
+    "scheduler": "^0.19.1",
+    "text-encoding": "^0.7.0",
+    "utf-8-validate": "^5.0.2"
   }
 }
