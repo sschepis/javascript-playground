@@ -15,6 +15,7 @@ export default class CompiledOutputWidget extends Widget {
     ))
 
     this.setFlag(Widget.Flag.DisallowLayout)
+    this.addClass('absolute-component')
     this.addClass('content')
     this.addClass('compiled-output')
     this.title.label = 'Compiled Output'
@@ -37,7 +38,6 @@ export default class CompiledOutputWidget extends Widget {
     this.iframe.width = '100%'
     this.iframe.srcdoc = content.compiledPage
     this.node.appendChild(this.iframe)
-    console.log('CompiledOutputWidget', 'updateiFrame')
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {

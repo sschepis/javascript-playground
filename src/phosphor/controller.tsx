@@ -2,17 +2,18 @@ import React, {h, Component} from 'react'
 import {CommandRegistry} from '@phosphor/commands';
 import {
   Widget,
-  CommandPalette, 
-  ContextMenu, 
-  MenuBar, 
-  Menu, 
-  DockPanel, 
+  CommandPalette,
+  ContextMenu,
+  MenuBar,
+  Menu,
+  DockPanel,
   BoxPanel
 } from '@phosphor/widgets';
 
-import {JSInputWidget, HTMLInputWidget,CSSInputWidget}  from './editor-input'
+import {JSInputWidget, HTMLInputWidget,CSSInputWidget,JSLibsWidget,CSSLibsWidget}  from './editor-input'
 import CompiledOutputWidget from './compiled-output'
 import ConsoleOutputWidget from './console-output'
+import { ser } from '../components/js-playground-engine'
 
 export default class PhosphorController extends React.PureComponent {
   _commandRegistry
@@ -24,16 +25,24 @@ export default class PhosphorController extends React.PureComponent {
   outputWidget
   consoleWidget
   javascriptWidget
+  jslibsWidget
+  csslibsWidget
   cssWidget
   htmlWidget
+  cssWidgets
+  jsWidgets
   props: {
-    js: any,
-    css: any,
-    html: any
+    tabs : {
+      css: any,
+      js: any
+    }
   }
   constructor(props) {
     super(props)
     this._componentRef = React.createRef()
+    let registry = this.commandRegistry
+    let palette = this.commandPalette
+    let contextMenu = this.contextMenu
   }
   dispatch (e:any, p:any = null) {
     document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
@@ -42,33 +51,37 @@ export default class PhosphorController extends React.PureComponent {
     const self = this
     const initPhosphorUI = (node:any) => {
       this.commandRegistry.addCommand('workspace:new', {
-        label: 'New Tab',
+        label: 'New Workspace',
         mnemonic: 0,
-        caption: 'Open a new tab',
+        caption: 'Create a new workspace',
+        isEnabled: () => false,
         execute: () => {
           console.log('New Tab');
         }
       });
       this.commandRegistry.addCommand('workspace:open', {
-        label: 'Close Tab',
+        label: 'Open Workspace',
         mnemonic: 1,
-        caption: 'Close the current tab',
+        caption: 'Open an existing Workspace',
+        isEnabled: () => false,
         execute: () => {
           console.log('Close Tab');
         }
       });
       this.commandRegistry.addCommand('workspace:clone', {
-        label: 'Save on Exit',
-        mnemonic: 0,
-        caption: 'Toggle the save on exit flag',
+        label: 'Clone Workspace',
+        mnemonic: 1,
+        caption: 'Clone the current Workspace',
+        isEnabled: () => false,
         execute: () => {
-          console.log('Save on Exit');
+          console.log('Close Tab');
         }
       });
       this.commandRegistry.addCommand('workspace:settings', {
         label: 'Workspace settings',
         mnemonic: 0,
-        caption: 'Show the workspace settings dialg',
+        caption: 'Open workspace settings',
+        isEnabled: () => false,
         execute: () => {
           console.log('Settings');
         }
@@ -78,13 +91,29 @@ export default class PhosphorController extends React.PureComponent {
         mnemonic: 1,
         caption: 'Run the active sketch',
         execute: () => {
-          console.log('Run Sketch');
+          this.dispatch('refresh_view')
+        }
+      });
+      this.commandRegistry.addCommand('sketch:addjs', {
+        label: 'Add Javascript Tab',
+        mnemonic: 1,
+        caption: 'Add a new Javascript Tab',
+        execute: () => {
+          this.dispatch('create_js')
+        }
+      });
+      this.commandRegistry.addCommand('sketch:addcss', {
+        label: 'Add CSS Tab',
+        mnemonic: 1,
+        caption: 'Add a new CSS Tab',
+        execute: () => {
+          this.dispatch('create_css')
         }
       });
       this.commandRegistry.addCommand('sketch:livemode', {
-        label: 'Toggle Livemode',
+        label: 'Toggle Live Mode',
         mnemonic: 1,
-        caption: 'Toggle sketch livemode',
+        caption: 'Toggle sketch live Mode',
         execute: () => {
           console.log('Livemode');
         }
@@ -92,6 +121,7 @@ export default class PhosphorController extends React.PureComponent {
       this.commandRegistry.addCommand('sketch:clearconsole', {
         label: 'Clear Console',
         mnemonic: 1,
+        caption: 'Clear the Javascript Console',
         caption: 'Clear Console',
         execute: () => {
           this.dispatch('clear_console')
@@ -104,9 +134,9 @@ export default class PhosphorController extends React.PureComponent {
         this.menuBar.addMenu(menu1);
         return menu1
       }
-      createMenu('Workspace', 0);    
+      createMenu('Workspace', 0);
       createMenu('Sketch', 1);
-    
+
       let palette = this.commandPalette
       let contextMenu = this.contextMenu
       var dock = this.dockPanel
@@ -116,6 +146,8 @@ export default class PhosphorController extends React.PureComponent {
       palette.addItem({ command: 'workspace:open', category: 'Workspace' });
       palette.addItem({ command: 'workspace:settings', category: 'Workspace' });
       palette.addItem({ command: 'sketch:run', category: 'Sketch' });
+      palette.addItem({ command: 'sketch:addjs', category: 'Sketch' });
+      palette.addItem({ command: 'sketch:addcss', category: 'Sketch' });
       palette.addItem({ command: 'sketch:livemode', category: 'Sketch' });
       palette.addItem({ command: 'sketch:clearconsole', category: 'Sketch' });
 
@@ -124,7 +156,7 @@ export default class PhosphorController extends React.PureComponent {
       //     event.preventDefault();
       //   }
       // });
-   
+
       // contextMenu.addItem({ command: 'workspace:new', selector: '.p-CommandPalette'});
       // contextMenu.addItem({ command: 'workspace:clone',selector: '.p-CommandPalette'});
       // contextMenu.addItem({ command: 'workspace:open', selector: '.p-CommandPalette'});
@@ -132,65 +164,83 @@ export default class PhosphorController extends React.PureComponent {
       // contextMenu.addItem({ command: 'sketch:run', selector: '.p-CommandPalette' });
       // contextMenu.addItem({ command: 'sketch:livemode', selector: '.p-CommandPalette' });
       // contextMenu.addItem({ type: 'separator', selector: '.p-CommandPalette-input' });
-    
+
       document.addEventListener('keydown', (event: KeyboardEvent) => {
         this.commandRegistry.processKeydownEvent(event);
       });
-    
+
+      this.jsWidgets = []
+      this.cssWidgets = []
+
       this.outputWidget = new CompiledOutputWidget('Output');
-      this.javascriptWidget = new JSInputWidget('Javascript', this.props.js);
+      this.javascriptWidget = new JSInputWidget(0);
       this.consoleWidget = new ConsoleOutputWidget('Console');
-      this.cssWidget = new CSSInputWidget('CSS', this.props.css);
-      this.htmlWidget = new HTMLInputWidget('HTML', this.props.html);
+      this.cssWidget = new CSSInputWidget(0);
+      this.csslibsWidget = new CSSLibsWidget('CSS Includes');
+      this.jslibsWidget = new JSLibsWidget('Javascript Includes');
+      this.htmlWidget = new HTMLInputWidget('HTML');
+      this.jsWidgets.push(this.javascriptWidget)
+      this.cssWidgets.push(this.cssWidget)
 
       dock.addWidget(this.outputWidget);
       dock.addWidget(this.consoleWidget, { mode: 'split-bottom', ref: this.outputWidget });
       dock.addWidget(this.javascriptWidget, { mode: 'split-right', ref: this.consoleWidget });
       dock.addWidget(this.cssWidget, { mode: 'split-bottom', ref: this.javascriptWidget });
       dock.addWidget(this.htmlWidget, { mode: 'split-right', ref: this.cssWidget });
+      dock.addWidget(this.jslibsWidget, { ref: this.javascriptWidget });
+      dock.addWidget(this.csslibsWidget, { ref: this.cssWidget });
 
-      let savedLayouts: DockPanel.ILayoutConfig[] = [];
-    
-      this.commandRegistry.addCommand('save-dock-layout', {
-        label: 'Save Layout',
-        caption: 'Save the current dock layout',
-        execute: () => {
-          savedLayouts.push(dock.saveLayout());
-          palette.addItem({
-            command: 'restore-dock-layout',
-            category: 'Dock Layout',
-            args: { index: savedLayouts.length - 1 }
-          });
-        }
-      });
+      const createJsTab = () => {
+        const w =  new JSInputWidget(this.jsWidgets.length)
+        dock.addWidget(w, { ref: this.javascriptWidget });
+        this.jsWidgets.push(w)
+      }
+      document.addEventListener('create_js', () => createJsTab());
 
-      this.commandRegistry.addCommand('restore-dock-layout', {
-        label: args => {
-          return `Restore Layout ${args.index as number}`;
-        },
-        execute: args => {
-          dock.restoreLayout(savedLayouts[args.index as number]);
-        }
-      });
+      const createCssTab = () => {
+        const w =  new CSSInputWidget(this.cssWidgets.length)
+        dock.addWidget(w, { ref: this.cssWidget });
+        this.cssWidgets.push(w)
+      }
+      document.addEventListener('create_css', () => createCssTab());
 
-      palette.addItem({
-        command: 'save-dock-layout',
-        category: 'Dock Layout',
-        rank: 0
-      });
+      for (var i=0; i<this.props.tabs.js - 1; i++) {
+        createJsTab()
+      }
+      for (var i=0; i<this.props.tabs.css - 1; i++) {
+        createCssTab()
+      }
+      const savedLayout = ser('savedLayout');
+      if(savedLayout) {
+        dock.restoreLayout(savedLayout);
+      }
 
       BoxPanel.setStretch(dock, 1);
-      
+
       let main = this.mainPanel
       let bar = this.menuBar
 
       main.id = 'main';
       main.addWidget(palette);
       main.addWidget(dock);
-    
-      window.onresize = () => { main.update(); };
-    
-      Widget.attach(bar, node);
+
+      const resizeThings = () => {
+        main.update();
+
+        //ser('savedLayout', dock.saveLayout());
+
+        // this.outputWidget.editor.resize()
+        // this.javascriptWidget.editor.resize()
+        // this.consoleWidget.editor.resize()
+        // this.cssWidget.editor.resize()
+        // this.csslibsWidget.editor.resize()
+        // this.jslibsWidget.editor.resize()
+        // this.htmlWidget.editor.resize()
+      }
+      window.onresize = () => resizeThings()
+      dock.onresize = () => resizeThings()
+
+      //Widget.attach(bar, node);
       Widget.attach(main, node);
     }
     initPhosphorUI(document.body)

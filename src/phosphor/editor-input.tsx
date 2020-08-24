@@ -29,33 +29,28 @@ export abstract class EditorInputWidget extends Widget {
     return n
   }
   abstract editorChanged(state: any);
-  abstract stateUpdated(state: any);
+  abstract stateInited(state: any);
   editor
-  updatingState
   constructor(props) {
     super(Object.assign(props, {
       node: EditorInputWidget.contentNode(props.id)}
     ))
-    this.updatingState = true
     this.initWidget(props)
-    this.updatingState = false
   }
   initWidget(props) {
     const self = this
     this.setFlag(Widget.Flag.DisallowLayout)
+    this.addClass('absolute-component')
     this.addClass('content')
     this.addClass('editor-input')
     this.title.label = props.label
     this.title.closable = false
     this.title.caption = props.label
     this.initEditor()
-    document.addEventListener('state_updated', (e:any) => {
-      this.updatingState = true
-      this.stateUpdated(e)
-      this.updatingState = false
+    document.addEventListener('state_inited', (e:any) => {
+      this.stateInited(e)
     })
     this.editor.on('change', (delta) => {
-      if (this.updatingState) return
       self.editorChanged(delta)
     })
   }
@@ -99,7 +94,7 @@ export class HTMLInputWidget extends EditorInputWidget {
     super.initEditor()
     this.editor.session.setMode("ace/mode/html");
   }
-  stateUpdated(state: any) {
+  stateInited(state: any) {
     const v = this.editor.getValue()
     if(state.detail && state.detail.html !== v) {
       this.editor.setValue(state.detail.html)
@@ -115,8 +110,14 @@ export class HTMLInputWidget extends EditorInputWidget {
 }
 
 export class CSSInputWidget extends EditorInputWidget {
-  constructor(props) {
-    super(Object.assign(props, { id: 'css-input', label: 'CSS Input'}))
+  index
+  constructor(index) {
+    super({
+      id: `css-input-${index}`,
+      label: `CSS Input ${index}`,
+      index
+    })
+    this.index = index
   }
   initEditor() {
     super.initEditor()
@@ -125,15 +126,21 @@ export class CSSInputWidget extends EditorInputWidget {
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
   }
-  stateUpdated(state: any) {
+  stateInited(state: any) {
     const v = this.editor.getValue()
-    if(state.detail && state.detail.css !== v) {
-      this.editor.setValue(state.detail.css)
+    if(state.detail && state.detail.css) {
+      const cv = state.detail.css
+      if(!Array.isArray(cv)) {
+        return
+      }
+      if(cv.length > this.index && cv[this.index] !== v) {
+        this.editor.setValue(cv[this.index])
+      }
     }
   }
-  editorChanged(delta:any) {
+  editorChanged() {
     const debounceEditorChanges = () => {
-      const detail = { css: this.editor.getValue() }
+      const detail = { css: this.editor.getValue(), index: this.index }
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
@@ -141,8 +148,14 @@ export class CSSInputWidget extends EditorInputWidget {
 }
 
 export class JSInputWidget extends EditorInputWidget {
-  constructor(props) {
-    super(Object.assign(props, { id: 'js-input', label: 'JS Input'}))
+  index
+  constructor(index) {
+    super({
+      id: `js-input-${index}`,
+      label: `js Input ${index}`,
+      index
+    })
+    this.index = index
   }
   initEditor() {
     super.initEditor()
@@ -151,18 +164,77 @@ export class JSInputWidget extends EditorInputWidget {
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
   }
-  stateUpdated(state: any) {
+  stateInited(state: any) {
     const v = this.editor.getValue()
-    if(state.detail && state.detail.js !== v) {
-      this.editor.setValue(state.detail.js)
+    if(state.detail && state.detail.js) {
+      const cv = state.detail.js
+      if(!Array.isArray(cv)) {
+        return
+      }
+      if(cv.length > this.index && cv[this.index] !== v) {
+        this.editor.setValue(cv[this.index])
+      }
     }
   }
   editorChanged(delta:any) {
     const debounceEditorChanges = () => {
-      const detail = { js: this.editor.getValue() }
+      const detail = { js: this.editor.getValue(), index: this.index }
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
   }
 }
 
+export class JSLibsWidget extends EditorInputWidget {
+  constructor(props) {
+    super(Object.assign(props, { id: 'js-libs', label: 'JS Libraries'}))
+  }
+  initEditor() {
+    super.initEditor()
+    this.editor.session.setMode("ace/mode/text");
+  }
+  protected onActivateRequest(msg: Message): void {
+    if (this.isAttached) { this.node.focus() }
+  }
+  stateInited(state: any) {
+    const v = this.editor.getValue()
+    const nv = state.detail.jslibs.join('\n')
+    if(state.detail && nv !== v) {
+      this.editor.setValue(nv)
+    }
+  }
+  editorChanged(delta:any) {
+    const debounceEditorChanges = () => {
+      const detail = { jslibs: this.editor.getValue().split('\n') }
+      this.dispatch('inputs_updated', detail)
+    }
+    debounce(debounceEditorChanges, 2000)()
+  }
+}
+
+export class CSSLibsWidget extends EditorInputWidget {
+  constructor(props) {
+    super(Object.assign(props, { id: 'css-libs', label: 'CSS Libraries'}))
+  }
+  initEditor() {
+    super.initEditor()
+    this.editor.session.setMode("ace/mode/text");
+  }
+  protected onActivateRequest(msg: Message): void {
+    if (this.isAttached) { this.node.focus() }
+  }
+  stateInited(state: any) {
+    const v = this.editor.getValue()
+    const nv = state.detail.csslibs.join('\n')
+    if(state.detail && nv !== v) {v
+      this.editor.setValue(nv)
+    }
+  }
+  editorChanged(delta:any) {
+    const debounceEditorChanges = () => {
+      const detail = { csslibs: this.editor.getValue().split('\n') }
+      this.dispatch('inputs_updated', detail)
+    }
+    debounce(debounceEditorChanges, 2000)()
+  }
+}

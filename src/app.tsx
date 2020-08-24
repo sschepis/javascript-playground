@@ -27,19 +27,27 @@ export default class JavascriptPlayground extends Component {
     this.state = {
       logs: [],
       html: '',
-      css: '',
-      js: '',
-      jslibs: [],
-      csslibs: [],
-      compiledPage: '',
+      css: [''],
+      js: [''],
+      jslibs: [
+        '#remove the \'#\' in front of the library to use it, one library per line',
+        '#//unpkg.com/react@16/umd/react.development.js',
+        '#//unpkg.com/react-dom@16/umd/react-dom.development.js',
+        '#//unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js'
+      ],
+      csslibs: [
+        '# remove the \'#\' in front of the library to use it, one library per line',
+        '#//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css',
+      ],
+      compiledPage: ''
     }
+    this.state = Object.assign(this.state, ser('jsplayground'))
     this.handleRefresh = this.handleRefresh.bind(this)
   }
 
   rebuildEngine() {
     this.engine = new JSPlaygroundEngine(Object.assign(this.state, {
       onRefresh: (e) => {
-        console.log('JavascriptPlayground', 'handleRefresh')
         this.setComponentState(e)
         this.dispatch('state_updated', e)
       }
@@ -49,19 +57,21 @@ export default class JavascriptPlayground extends Component {
 
   componentDidMount() {
     const self = this
-    this.state = Object.assign(this.state, ser('jsplayground'))
     document.addEventListener('inputs_updated',
       (e:any) => this.inputsUpdated(e)
     )
     document.addEventListener('state_updated',
       (e:any) => this.stateUpdated(e)
     )
+    document.addEventListener('refresh_view',
+      (e:any) => this.rebuildEngine()
+    )
     document.addEventListener('clear_console',
-    (e:any) => this.setComponentState({logs:[]})
-  )
-    this.dispatch('state_updated', this.state)
-
+      (e:any) => this.setComponentState({logs:[]})
+    )
     this.installLogger()
+    this.dispatch('state_inited', this.state)
+    this.dispatch('refresh_view', this.state)
   }
 
   installLogger() {
@@ -74,7 +84,7 @@ export default class JavascriptPlayground extends Component {
     Hook(
       window.console,
       log => {
-        this.setState({ logs: [...this.state.logs, log] })
+        this.setComponentState({ logs: [...this.state.logs, log] })
       },
       false
     )
@@ -82,7 +92,9 @@ export default class JavascriptPlayground extends Component {
   }
 
   stateUpdated(e:any) {
-    ser('jsplayground', e.detail)
+    const o = Object.assign({},e.detail)
+    delete o.onRefresh
+    ser('jsplayground', o)
   }
 
   inputsUpdated(e:any) {
@@ -94,7 +106,34 @@ export default class JavascriptPlayground extends Component {
   }
 
   setComponentState(s) {
-    this.setState(s)
+    if(s.js && !Array.isArray(s.js) && s.index !== undefined && Object.keys(s).length === 2) {
+      var js = this.state.js
+      if(!Array.isArray(js)) {
+        const el = js
+        js = []
+        while(js.length<=s.index) {
+          js.push('')
+        }
+        js[0] = el
+      }
+      js[s.index] = s.js
+      s.js = js
+    }
+    else if(s.css && Array.isArray(s.css)  && s.index !== undefined && Object.keys(s).length === 2) {
+      var css = this.state.css
+      if(!Array.isArray(css)) {
+        const el = css
+        css = []
+        while(css.length<=s.index) {
+          css.push('')
+        }
+        css[0] = el
+      }
+      css[s.index] = s.css
+      s.css = css
+    }
+    delete s.index
+    super.setState(s)
   }
 
   handleRefresh(o) {
@@ -107,12 +146,15 @@ export default class JavascriptPlayground extends Component {
   }
 
   render() {
-    return (<div style={styles}>
-      <PhosphorController html={this.state.html} js={this.state.js} css={this.state.css} />
+    const getTabsCount = () => {
+      return {
+        js: this.state.js.length,
+        css: this.state.css.length
+      }
+    }
+    return (<div style={styles}><PhosphorController tabs={getTabsCount()}/>
     {document.getElementById('console-log-parent')?ReactDOM.createPortal(
-      (<ConsolePanel logs={this.state.logs} />),
-      document.getElementById('console-log-parent')
-    ):(<div/>)}
+      (<ConsolePanel logs={this.state.logs}/>),document.getElementById('console-log-parent')):(<div/>)}
     </div>)
   }
 }

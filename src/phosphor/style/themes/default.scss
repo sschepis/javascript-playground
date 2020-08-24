@@ -1,0 +1,221 @@
+$color1:white;
+$color2:#FAFAFA;
+$color3:#F5F5F5;
+$color4:#F0F0F0;
+$color5:#E5E5E5;
+$color6:#E1E1E1;
+$color7:#E0E0E0;
+$color8:#DDDDDD;
+$color9:#DADADA;
+$color10:#CDCDCD;
+$color11:#C0C0C0;
+$color13:#BABABA;
+$color14:#A0A0A0;
+$color15:#9E9E9E;
+$color16:#757575;
+
+.p-CommandPalette {
+  background: $color3;
+}
+
+.p-CommandPalette-wrapper {
+  background: $color1;
+  border: 1px solid $color7;
+}
+
+.p-CommandPalette-header {
+  color: $color16;
+  background: $color6;
+}
+.p-CommandPalette-header > mark {
+  background-color: transparent;
+}
+
+.p-CommandPalette-item {
+  color: $color16;
+}
+
+.p-CommandPalette-emptyMessage {
+  color: $color16;
+}
+
+.p-CommandPalette-item.p-mod-disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.p-CommandPalette-item.p-mod-active {
+  background: #7FDBFF;
+}
+
+.p-CommandPalette-item:hover:not(.p-mod-active):not(.p-mod-disabled) {
+  background: $color5;
+}
+
+.p-CommandPalette-itemLabel > mark {
+  background-color: transparent;
+}
+
+.p-CommandPalette-item.p-mod-disabled mark {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.p-CommandPalette-itemCaption {
+  color: $color15;
+}
+
+.p-DataGrid {
+  border: 1px solid $color14;
+}
+
+.p-DataGrid-scrollCorner {
+  background-color: $color4;
+}
+
+.p-DataGrid-scrollCorner::after {
+  background-color: $color14;
+}
+
+.p-DockPanel-overlay {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px dashed black;
+}
+
+
+.p-Menu {
+  padding: 3px 0px;
+  background: $color1;
+  color: rgba(0, 0, 0, 0.87);
+  border: 1px solid $color11;
+  font: 12px Helvetica, Arial, sans-serif;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.p-Menu-item.p-mod-active {
+  background: $color5;
+}
+
+.p-Menu-item.p-mod-disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.p-Menu-itemIcon {
+  width: 21px;
+  padding: 4px 2px;
+}
+
+.p-Menu-itemLabel {
+  padding: 4px 35px 4px 2px;
+}
+
+.p-Menu-itemMnemonic {
+  text-decoration: underline;
+}
+
+.p-Menu-itemShortcut {
+  padding: 4px 0px;
+}
+
+.p-Menu-itemSubmenuIcon {
+  width: 16px;
+  padding: 4px 0px;
+}
+
+.p-Menu-item[data-type='separator'] > div {
+  padding: 0;
+  height: 9px;
+}
+
+.p-Menu-item[data-type='separator'] > div::after {
+  top: 4px;
+  border-top: 1px solid $color8;
+}
+
+
+.p-MenuBar {
+  padding-left: 5px;
+  background: $color2;
+  color: rgba(0, 0, 0, 0.87);
+  border-bottom: 1px solid $color8;
+  font: 13px Helvetica, Arial, sans-serif;
+}
+
+.p-MenuBar-item.p-mod-active {
+  background: $color5;
+}
+
+.p-MenuBar.p-mod-active .p-MenuBar-item.p-mod-active {
+  z-index: 10001;
+  background: $color1;
+  border-left: 1px solid $color11;
+  border-right: 1px solid $color11;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+.p-ScrollBar[data-orientation='horizontal'] {
+  border-top: 1px solid $color14;
+}
+
+.p-ScrollBar[data-orientation='vertical'] {
+  border-left: 1px solid $color14;
+}
+
+.p-ScrollBar-button {
+  background-color: $color4;
+}
+
+.p-ScrollBar-button:hover {
+  background-color: $color9;
+}
+
+.p-ScrollBar-button.p-mod-active {
+  background-color: $color10;
+}
+
+.p-ScrollBar-track {
+  background: $color4;
+}
+
+.p-ScrollBar-thumb {
+  background: $color10;
+}
+
+.p-ScrollBar-thumb:hover {
+  background: $color13;
+}
+
+.p-ScrollBar-thumb.p-mod-active {
+  background: $color14;
+}
+
+
+.p-ScrollBar[data-orientation='horizontal'] .p-ScrollBar-thumb {
+  border-left: 1px solid $color14;
+  border-right: 1px solid $color14;
+}
+
+.p-ScrollBar[data-orientation='vertical'] .p-ScrollBar-thumb {
+  border-top: 1px solid $color14;
+  border-bottom: 1px solid $color14;
+}
+
+.p-TabBar-content {
+  border-bottom: 1px solid $color11;
+}
+
+.p-TabBar-tab {
+  background: $color5;
+  border: 1px solid $color11;
+}
+
+.p-TabBar-tab.p-mod-current {
+  background: $color1;
+}
+
+.p-TabBar-tab:hover:not(.p-mod-current) {
+  background: $color4;
+}
+
+.p-TabBar-tab.p-mod-drag-image {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}

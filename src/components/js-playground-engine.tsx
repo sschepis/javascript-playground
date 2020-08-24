@@ -1,12 +1,14 @@
 
+import safeStringify from 'fast-safe-stringify'
+
 const localStore = window.localStorage
 
-export const ser = (k,v = null) => {
-  if (!v) {
+export const ser = (k,v) => {
+  if (v === null || v === undefined) {
     const v = localStore.getItem(k)
     return JSON.parse(v)
   }
-  window.localStorage.setItem(k, JSON.stringify(v))
+  window.localStorage.setItem(k, safeStringify.stableStringify(v))
 }
 
 const debounceTimes = {}
@@ -35,8 +37,8 @@ export function debounce(f, t) {
 export default class JSPlaygroundEngine {
   state : {
     html : string,
-    css : string,
-    js : string,
+    css : Array<string>,
+    js : Array<string>,
     jslibs : string | Array<string>,
     csslibs : string | Array<string>,
     compiledPage : string
@@ -44,8 +46,8 @@ export default class JSPlaygroundEngine {
   props: {
     onRefresh? : any,
     html? : string,
-    css? : string,
-    js? : string,
+    css? : Array<string>,
+    js? : Array<string>,
     csslibs? : string | Array<string>,
     jslibs? : string | Array<string>,
     refreshOnUpdate? : boolean
@@ -65,14 +67,15 @@ export default class JSPlaygroundEngine {
   }
 
   compilePage() {
-    const textToArray = (t) => {
-      if(!t.split) { return [] }
+    const toArray = (t) => {
+      if(Array.isArray(t)) { return t }
+      if(!t || !t.split) { return [] }
       return t.split('\n')
-    } 
+    }
     return `<html>
     <head>
-    ${textToArray(this.state.csslibs).map(el => {
-      if (!el || el.startsWith('#')) { return }
+    ${toArray(this.state.csslibs).map(el => {
+      if (!el || el.startsWith('#') || el === '') { return }
       return `<link rel="stylesheet" href="${el}" />`
     }).join('\n')}
     <style>
@@ -82,7 +85,7 @@ export default class JSPlaygroundEngine {
       border: 0;
       padding: 0;
     }
-    ${this.state.css}
+    ${Array.isArray(this.state.css) ? this.state.css.join('\n'):this.state.css }
     </style>
     <script type="text/javascript">
       console = window.console = window.parent.console
@@ -93,8 +96,8 @@ export default class JSPlaygroundEngine {
         document.body.appendChild(s)
       }
     </script>
-    ${textToArray(this.state.jslibs).map(el => {
-      if (!el || el.startsWith('#')) { return }
+    ${toArray(this.state.jslibs).map(el => {
+      if (!el || el.startsWith('#') || el === '') { return }
       return `<script type="text/javascript" src="${el}"></script>`
     }).join('\n')}
     </head>
@@ -102,7 +105,7 @@ export default class JSPlaygroundEngine {
     ${this.state.html}
     </body>
     <script type="text/javascript">
-    ${this.state.js}
+    ${Array.isArray(this.state.js) ? this.state.js.join('\n'):this.state.js}
     </script>
     </html>`
   }
