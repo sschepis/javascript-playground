@@ -84,7 +84,9 @@ export default class JavascriptPlayground extends Component {
   }
 
   stateUpdated(e:any) {
-    ser('jsplayground', e.detail)
+    const o = Object.assign({},e.detail)
+    delete o.refresh
+    ser('jsplayground', o)
   }
 
   inputsUpdated(e:any) {
@@ -119,6 +121,7 @@ export default class JavascriptPlayground extends Component {
       s.css = css
     }
     this.setState(s)
+    console.log(s)
   }
 
   handleRefresh(o) {
