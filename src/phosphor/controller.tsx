@@ -35,6 +35,9 @@ export default class PhosphorController extends React.PureComponent {
     super(props)
     this._componentRef = React.createRef()
   }
+  dispatch (e:any, p:any = null) {
+    document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
+  }
   componentDidMount() {
     const self = this
     const initPhosphorUI = (node:any) => {
@@ -86,7 +89,14 @@ export default class PhosphorController extends React.PureComponent {
           console.log('Livemode');
         }
       });
-
+      this.commandRegistry.addCommand('sketch:clearconsole', {
+        label: 'Clear Console',
+        mnemonic: 1,
+        caption: 'Clear Console',
+        execute: () => {
+          this.dispatch('clear_console')
+        }
+      });
       const createMenu = (label:any, mnem:any) => {
         let menu1 = new Menu({commands:this.commandRegistry})
         menu1.title.label = label;
@@ -107,6 +117,7 @@ export default class PhosphorController extends React.PureComponent {
       palette.addItem({ command: 'workspace:settings', category: 'Workspace' });
       palette.addItem({ command: 'sketch:run', category: 'Sketch' });
       palette.addItem({ command: 'sketch:livemode', category: 'Sketch' });
+      palette.addItem({ command: 'sketch:clearconsole', category: 'Sketch' });
 
       // document.addEventListener('contextmenu', (event: MouseEvent) => {
       //   if (contextMenu.open(event)) {

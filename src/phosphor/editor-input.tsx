@@ -50,14 +50,12 @@ export abstract class EditorInputWidget extends Widget {
     this.title.caption = props.label
     this.initEditor()
     document.addEventListener('state_updated', (e:any) => {
-      console.log('EditorInputWidget', 'state_updated')
       this.updatingState = true
       this.stateUpdated(e)
       this.updatingState = false
     })
     this.editor.on('change', (delta) => {
       if (this.updatingState) return
-      console.log('EditorInputWidget', 'change')
       self.editorChanged(delta)
     })
   }

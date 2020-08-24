@@ -37,7 +37,6 @@ export default class JavascriptPlayground extends Component {
   }
 
   rebuildEngine() {
-    console.log('JavascriptPlayground', 'rebuildEngine')
     this.engine = new JSPlaygroundEngine(Object.assign(this.state, {
       onRefresh: (e) => {
         console.log('JavascriptPlayground', 'handleRefresh')
@@ -50,7 +49,6 @@ export default class JavascriptPlayground extends Component {
 
   componentDidMount() {
     const self = this
-    console.log('JavascriptPlayground', 'componentDidMount')
     this.state = Object.assign(this.state, ser('jsplayground'))
     document.addEventListener('inputs_updated',
       (e:any) => this.inputsUpdated(e)
@@ -58,6 +56,9 @@ export default class JavascriptPlayground extends Component {
     document.addEventListener('state_updated',
       (e:any) => this.stateUpdated(e)
     )
+    document.addEventListener('clear_console',
+    (e:any) => this.setComponentState({logs:[]})
+  )
     this.dispatch('state_updated', this.state)
 
     this.installLogger()
@@ -78,7 +79,6 @@ export default class JavascriptPlayground extends Component {
       false
     )
     console.warn = console.feed.pointers.warn = function () {}
-    console.log('logger installed')
   }
 
   stateUpdated(e:any) {
@@ -98,7 +98,6 @@ export default class JavascriptPlayground extends Component {
   }
 
   handleRefresh(o) {
-    console.log('JavascriptPlayground', 'handleRefresh')
     this.setComponentState(o)
     this.dispatch('state_updated', o)
   }
