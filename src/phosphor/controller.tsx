@@ -10,9 +10,10 @@ import {
   BoxPanel
 } from '@phosphor/widgets';
 
-import {JSInputWidget, HTMLInputWidget,CSSInputWidget}  from './editor-input'
+import {JSInputWidget, HTMLInputWidget,CSSInputWidget,JSLibsWidget,CSSLibsWidget}  from './editor-input'
 import CompiledOutputWidget from './compiled-output'
 import ConsoleOutputWidget from './console-output'
+import { ser } from '../components/js-playground-engine'
 
 export default class PhosphorController extends React.PureComponent {
   _commandRegistry
@@ -24,16 +25,26 @@ export default class PhosphorController extends React.PureComponent {
   outputWidget
   consoleWidget
   javascriptWidget
+  jslibsWidget
+  csslibsWidget
   cssWidget
   htmlWidget
+  savedLayouts
+  cssWidgets
+  jsWidgets
   props: {
     js: any,
     css: any,
-    html: any
+    html: any,
+    jslibs: any
+    csslibs: any
   }
   constructor(props) {
     super(props)
     this._componentRef = React.createRef()
+    let registry = this.commandRegistry
+    let palette = this.commandPalette
+    let contextMenu = this.contextMenu
   }
   dispatch (e:any, p:any = null) {
     document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
@@ -42,33 +53,33 @@ export default class PhosphorController extends React.PureComponent {
     const self = this
     const initPhosphorUI = (node:any) => {
       this.commandRegistry.addCommand('workspace:new', {
-        label: 'New Tab',
+        label: 'New Workspace',
         mnemonic: 0,
-        caption: 'Open a new tab',
+        caption: 'Create a new workspace',
         execute: () => {
           console.log('New Tab');
         }
       });
       this.commandRegistry.addCommand('workspace:open', {
-        label: 'Close Tab',
+        label: 'Open Workspace',
         mnemonic: 1,
-        caption: 'Close the current tab',
+        caption: 'Open an existing Workspace',
         execute: () => {
           console.log('Close Tab');
         }
       });
       this.commandRegistry.addCommand('workspace:clone', {
-        label: 'Save on Exit',
-        mnemonic: 0,
-        caption: 'Toggle the save on exit flag',
+        label: 'Clone Workspace',
+        mnemonic: 1,
+        caption: 'Clone the current Workspace',
         execute: () => {
-          console.log('Save on Exit');
+          console.log('Close Tab');
         }
       });
       this.commandRegistry.addCommand('workspace:settings', {
         label: 'Workspace settings',
         mnemonic: 0,
-        caption: 'Show the workspace settings dialg',
+        caption: 'Open workspace settings',
         execute: () => {
           console.log('Settings');
         }
@@ -78,13 +89,29 @@ export default class PhosphorController extends React.PureComponent {
         mnemonic: 1,
         caption: 'Run the active sketch',
         execute: () => {
-          console.log('Run Sketch');
+          this.dispatch('refresh_view')
+        }
+      });
+      this.commandRegistry.addCommand('sketch:addjs', {
+        label: 'Add Javascript Tab',
+        mnemonic: 1,
+        caption: 'Add a new Javascript Tab',
+        execute: () => {
+          this.dispatch('create_js')
+        }
+      });
+      this.commandRegistry.addCommand('sketch:addcss', {
+        label: 'Add CSS Tab',
+        mnemonic: 1,
+        caption: 'Add a new CSS Tab',
+        execute: () => {
+          this.dispatch('create_css')
         }
       });
       this.commandRegistry.addCommand('sketch:livemode', {
-        label: 'Toggle Livemode',
+        label: 'Toggle Live Mode',
         mnemonic: 1,
-        caption: 'Toggle sketch livemode',
+        caption: 'Toggle sketch live Mode',
         execute: () => {
           console.log('Livemode');
         }
@@ -92,6 +119,7 @@ export default class PhosphorController extends React.PureComponent {
       this.commandRegistry.addCommand('sketch:clearconsole', {
         label: 'Clear Console',
         mnemonic: 1,
+        caption: 'Clear the Javascript Console',
         caption: 'Clear Console',
         execute: () => {
           this.dispatch('clear_console')
@@ -116,6 +144,8 @@ export default class PhosphorController extends React.PureComponent {
       palette.addItem({ command: 'workspace:open', category: 'Workspace' });
       palette.addItem({ command: 'workspace:settings', category: 'Workspace' });
       palette.addItem({ command: 'sketch:run', category: 'Sketch' });
+      palette.addItem({ command: 'sketch:addjs', category: 'Sketch' });
+      palette.addItem({ command: 'sketch:addcss', category: 'Sketch' });
       palette.addItem({ command: 'sketch:livemode', category: 'Sketch' });
       palette.addItem({ command: 'sketch:clearconsole', category: 'Sketch' });
 
@@ -137,25 +167,48 @@ export default class PhosphorController extends React.PureComponent {
         this.commandRegistry.processKeydownEvent(event);
       });
     
+      this.jsWidgets = []
+      this.cssWidgets = []
+      
       this.outputWidget = new CompiledOutputWidget('Output');
-      this.javascriptWidget = new JSInputWidget('Javascript', this.props.js);
+      this.javascriptWidget = new JSInputWidget(0);
       this.consoleWidget = new ConsoleOutputWidget('Console');
-      this.cssWidget = new CSSInputWidget('CSS', this.props.css);
+      this.cssWidget = new CSSInputWidget(0);
+      this.csslibsWidget = new CSSLibsWidget('CSS Includes', this.props.csslibs);
+      this.jslibsWidget = new JSLibsWidget('Javascript Includes', this.props.jslibs);
       this.htmlWidget = new HTMLInputWidget('HTML', this.props.html);
+      this.jsWidgets.push(this.javascriptWidget)
+      this.cssWidgets.push(this.cssWidget)
 
       dock.addWidget(this.outputWidget);
       dock.addWidget(this.consoleWidget, { mode: 'split-bottom', ref: this.outputWidget });
       dock.addWidget(this.javascriptWidget, { mode: 'split-right', ref: this.consoleWidget });
       dock.addWidget(this.cssWidget, { mode: 'split-bottom', ref: this.javascriptWidget });
       dock.addWidget(this.htmlWidget, { mode: 'split-right', ref: this.cssWidget });
+      dock.addWidget(this.jslibsWidget, { ref: this.javascriptWidget });
+      dock.addWidget(this.csslibsWidget, { ref: this.cssWidget });
 
-      let savedLayouts: DockPanel.ILayoutConfig[] = [];
+      document.addEventListener('create_js', () => {
+        const w =  new JSInputWidget(this.jsWidgets.length)
+        dock.addWidget(w, { ref: this.javascriptWidget });
+        this.jsWidgets.push(w)
+      });
+
+      document.addEventListener('create_css', () => {
+        const w =  new CSSInputWidget(this.cssWidgets.length)
+        dock.addWidget(w, { ref: this.cssWidget });
+        this.cssWidgets.push(w)
+      });
+      
+      this.savedLayouts = ser('savedLayouts') || [];
     
       this.commandRegistry.addCommand('save-dock-layout', {
         label: 'Save Layout',
         caption: 'Save the current dock layout',
         execute: () => {
-          savedLayouts.push(dock.saveLayout());
+          this.savedLayouts.push(dock.saveLayout())
+          ser('savedLayouts', this.savedLayouts)
+
           palette.addItem({
             command: 'restore-dock-layout',
             category: 'Dock Layout',
@@ -169,7 +222,7 @@ export default class PhosphorController extends React.PureComponent {
           return `Restore Layout ${args.index as number}`;
         },
         execute: args => {
-          dock.restoreLayout(savedLayouts[args.index as number]);
+          dock.restoreLayout((this.savedLayouts || [])[args.index as number]);
         }
       });
 
@@ -188,7 +241,18 @@ export default class PhosphorController extends React.PureComponent {
       main.addWidget(palette);
       main.addWidget(dock);
     
-      window.onresize = () => { main.update(); };
+      const resizeThings = () => {
+        main.update();
+        // this.outputWidget.editor.resize()
+        // this.javascriptWidget.editor.resize()
+        // this.consoleWidget.editor.resize()
+        // this.cssWidget.editor.resize()
+        // this.csslibsWidget.editor.resize()
+        // this.jslibsWidget.editor.resize()
+        // this.htmlWidget.editor.resize()
+      }
+      window.onresize = () => resizeThings()
+      dock.onresize = () => resizeThings()
     
       Widget.attach(bar, node);
       Widget.attach(main, node);

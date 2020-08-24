@@ -35,8 +35,8 @@ export function debounce(f, t) {
 export default class JSPlaygroundEngine {
   state : {
     html : string,
-    css : string,
-    js : string,
+    css : [],
+    js : [],
     jslibs : string | Array<string>,
     csslibs : string | Array<string>,
     compiledPage : string
@@ -44,8 +44,8 @@ export default class JSPlaygroundEngine {
   props: {
     onRefresh? : any,
     html? : string,
-    css? : string,
-    js? : string,
+    css? : [],
+    js? : [],
     csslibs? : string | Array<string>,
     jslibs? : string | Array<string>,
     refreshOnUpdate? : boolean
@@ -66,7 +66,7 @@ export default class JSPlaygroundEngine {
 
   compilePage() {
     const textToArray = (t) => {
-      if(!t.split) { return [] }
+      if(!t || !t.split) { return [] }
       return t.split('\n')
     } 
     return `<html>
@@ -82,7 +82,7 @@ export default class JSPlaygroundEngine {
       border: 0;
       padding: 0;
     }
-    ${this.state.css}
+    ${Array.isArray(this.state.css) ? this.state.css.join('\n'):this.state.css }
     </style>
     <script type="text/javascript">
       console = window.console = window.parent.console
@@ -102,7 +102,7 @@ export default class JSPlaygroundEngine {
     ${this.state.html}
     </body>
     <script type="text/javascript">
-    ${this.state.js}
+    ${Array.isArray(this.state.js) ? this.state.js.join('\n'):this.state.js}
     </script>
     </html>`
   }

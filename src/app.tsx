@@ -27,8 +27,8 @@ export default class JavascriptPlayground extends Component {
     this.state = {
       logs: [],
       html: '',
-      css: '',
-      js: '',
+      css: [],
+      js: [],
       jslibs: [],
       csslibs: [],
       compiledPage: '',
@@ -39,7 +39,6 @@ export default class JavascriptPlayground extends Component {
   rebuildEngine() {
     this.engine = new JSPlaygroundEngine(Object.assign(this.state, {
       onRefresh: (e) => {
-        console.log('JavascriptPlayground', 'handleRefresh')
         this.setComponentState(e)
         this.dispatch('state_updated', e)
       }
@@ -56,12 +55,15 @@ export default class JavascriptPlayground extends Component {
     document.addEventListener('state_updated',
       (e:any) => this.stateUpdated(e)
     )
+    document.addEventListener('refresh_view',
+      (e:any) => this.rebuildEngine()
+    )
     document.addEventListener('clear_console',
-    (e:any) => this.setComponentState({logs:[]})
-  )
-    this.dispatch('state_updated', this.state)
-
+      (e:any) => this.setComponentState({logs:[]})
+    )
     this.installLogger()
+    this.dispatch('state_inited', this.state)
+    this.dispatch('refresh_view', this.state)
   }
 
   installLogger() {
@@ -74,7 +76,7 @@ export default class JavascriptPlayground extends Component {
     Hook(
       window.console,
       log => {
-        this.setState({ logs: [...this.state.logs, log] })
+        this.setComponentState({ logs: [...this.state.logs, log] })
       },
       false
     )
@@ -94,6 +96,28 @@ export default class JavascriptPlayground extends Component {
   }
 
   setComponentState(s) {
+    if(s.js && s.index) {
+      var js = this.state.js
+      if(!Array.isArray(js)) {
+        js = [js]
+      }
+      while(js.length<=s.index) {
+        js.push('')
+      }
+      js[s.index] = s.js
+      s.js = js
+    }
+    if(s.css && s.index) {
+      var css = this.state.css
+      if(!Array.isArray(css)) {
+        css = [css]
+      }
+      while(css.length<=s.index) {
+        css.push('')
+      }
+      css[s.index] = s.css
+      s.css = css
+    }
     this.setState(s)
   }
 
@@ -107,12 +131,9 @@ export default class JavascriptPlayground extends Component {
   }
 
   render() {
-    return (<div style={styles}>
-      <PhosphorController html={this.state.html} js={this.state.js} css={this.state.css} />
+    return (<div style={styles}><PhosphorController />
     {document.getElementById('console-log-parent')?ReactDOM.createPortal(
-      (<ConsolePanel logs={this.state.logs} />),
-      document.getElementById('console-log-parent')
-    ):(<div/>)}
+      (<ConsolePanel logs={this.state.logs}/>),document.getElementById('console-log-parent')):(<div/>)}
     </div>)
   }
 }
