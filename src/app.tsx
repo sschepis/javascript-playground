@@ -27,12 +27,21 @@ export default class JavascriptPlayground extends Component {
     this.state = {
       logs: [],
       html: '',
-      css: [],
-      js: [],
-      jslibs: [],
-      csslibs: [],
-      compiledPage: '',
+      css: [''],
+      js: [''],
+      jslibs: [
+        '#remove the \'#\' in front of the library to use it, one library per line',
+        '#//unpkg.com/react@16/umd/react.development.js',
+        '#//unpkg.com/react-dom@16/umd/react-dom.development.js',
+        '#//unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js'
+      ],
+      csslibs: [
+        '# remove the \'#\' in front of the library to use it, one library per line',
+        '#//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css',
+      ],
+      compiledPage: ''
     }
+    this.state = Object.assign(this.state, ser('jsplayground'))
     this.handleRefresh = this.handleRefresh.bind(this)
   }
 
@@ -48,7 +57,6 @@ export default class JavascriptPlayground extends Component {
 
   componentDidMount() {
     const self = this
-    this.state = Object.assign(this.state, ser('jsplayground'))
     document.addEventListener('inputs_updated',
       (e:any) => this.inputsUpdated(e)
     )
@@ -85,7 +93,7 @@ export default class JavascriptPlayground extends Component {
 
   stateUpdated(e:any) {
     const o = Object.assign({},e.detail)
-    delete o.refresh
+    delete o.onRefresh
     ser('jsplayground', o)
   }
 
@@ -98,30 +106,34 @@ export default class JavascriptPlayground extends Component {
   }
 
   setComponentState(s) {
-    if(s.js && s.index) {
+    if(s.js && !Array.isArray(s.js) && s.index !== undefined && Object.keys(s).length === 2) {
       var js = this.state.js
       if(!Array.isArray(js)) {
-        js = [js]
-      }
-      while(js.length<=s.index) {
-        js.push('')
+        const el = js
+        js = []
+        while(js.length<=s.index) {
+          js.push('')
+        }
+        js[0] = el
       }
       js[s.index] = s.js
       s.js = js
     }
-    if(s.css && s.index) {
+    else if(s.css && Array.isArray(s.css)  && s.index !== undefined && Object.keys(s).length === 2) {
       var css = this.state.css
       if(!Array.isArray(css)) {
-        css = [css]
-      }
-      while(css.length<=s.index) {
-        css.push('')
+        const el = css
+        css = []
+        while(css.length<=s.index) {
+          css.push('')
+        }
+        css[0] = el
       }
       css[s.index] = s.css
       s.css = css
     }
-    this.setState(s)
-    console.log(s)
+    delete s.index
+    super.setState(s)
   }
 
   handleRefresh(o) {
@@ -134,7 +146,13 @@ export default class JavascriptPlayground extends Component {
   }
 
   render() {
-    return (<div style={styles}><PhosphorController />
+    const getTabsCount = () => {
+      return {
+        js: this.state.js.length,
+        css: this.state.css.length
+      }
+    }
+    return (<div style={styles}><PhosphorController tabs={getTabsCount()}/>
     {document.getElementById('console-log-parent')?ReactDOM.createPortal(
       (<ConsolePanel logs={this.state.logs}/>),document.getElementById('console-log-parent')):(<div/>)}
     </div>)

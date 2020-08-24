@@ -198,13 +198,14 @@ export class JSLibsWidget extends EditorInputWidget {
   }
   stateInited(state: any) {
     const v = this.editor.getValue()
-    if(state.detail && state.detail.jslibs !== v) {
-      this.editor.setValue(state.detail.jslibs)
+    const nv = state.detail.jslibs.join('\n')
+    if(state.detail && nv !== v) {
+      this.editor.setValue(nv)
     }
   }
   editorChanged(delta:any) {
     const debounceEditorChanges = () => {
-      const detail = { jslibs: this.editor.getValue() }
+      const detail = { jslibs: this.editor.getValue().split('\n') }
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
@@ -224,13 +225,14 @@ export class CSSLibsWidget extends EditorInputWidget {
   }
   stateInited(state: any) {
     const v = this.editor.getValue()
-    if(state.detail && state.detail.csslibs !== v) {
-      this.editor.setValue(state.detail.csslibs)
+    const nv = state.detail.csslibs.join('\n')
+    if(state.detail && nv !== v) {v
+      this.editor.setValue(nv)
     }
   }
   editorChanged(delta:any) {
     const debounceEditorChanges = () => {
-      const detail = { csslibs: this.editor.getValue() }
+      const detail = { csslibs: this.editor.getValue().split('\n') }
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
