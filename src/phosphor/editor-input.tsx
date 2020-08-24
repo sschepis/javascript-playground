@@ -65,16 +65,23 @@ export abstract class EditorInputWidget extends Widget {
     document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
   }
   initEditor() {
+    ace.config.set('basePath', '/')
     ace.require('ace/ext/themelist')
     ace.require('ace/ext/options')
     ace.require('ace/ext/language_tools')
     ace.require('ace/ext/code_lens')
     ace.require('ace/ext/status_bar')
     ace.require('ace/ext/settings_menu')
-    ace.require('ace/theme/vibrant_ink')
+    ace.require('ace/theme/tomorrow_night_eighties')
     this.editor = ace.edit(this.node);
-    ace.config.set('basePath', '/')
-    ace.config.set('enableCodeLens', true)
+    this.editor.setTheme("ace/theme/tomorrow_night_eighties");
+    this.editor.setOptions({
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: true,
+      enableCodeLens: true
+    })
+
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
@@ -92,13 +99,7 @@ export class HTMLInputWidget extends EditorInputWidget {
   }
   initEditor() {
     super.initEditor()
-    this.editor.setTheme("ace/theme/vibrant_ink");
     this.editor.session.setMode("ace/mode/html");
-    this.editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableSnippets: true,
-      enableLiveAutocompletion: false
-    })
   }
   stateUpdated(state: any) {
     const v = this.editor.getValue()
@@ -121,13 +122,7 @@ export class CSSInputWidget extends EditorInputWidget {
   }
   initEditor() {
     super.initEditor()
-    this.editor.setTheme("ace/theme/vibrant_ink");
     this.editor.session.setMode("ace/mode/css");
-    this.editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableSnippets: true,
-      enableLiveAutocompletion: false
-    })
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
@@ -153,13 +148,7 @@ export class JSInputWidget extends EditorInputWidget {
   }
   initEditor() {
     super.initEditor()
-    this.editor.setTheme("ace/theme/vibrant_ink");
     this.editor.session.setMode("ace/mode/javascript");
-    this.editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableSnippets: true,
-      enableLiveAutocompletion: false
-    })
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }

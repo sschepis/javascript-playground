@@ -1,11 +1,13 @@
 
 import React, { h, Component } from 'react'
 import ReactDOM from 'react-dom'
+
+import 'regenerator-runtime/runtime'
 import ConsolePanel from './components/console-panel'
+import { Hook } from 'console-feed'
 
 import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
-import 'regenerator-runtime/runtime'
 
 export default class JavascriptPlayground extends Component {
   state: {
@@ -50,13 +52,33 @@ export default class JavascriptPlayground extends Component {
     const self = this
     console.log('JavascriptPlayground', 'componentDidMount')
     this.state = Object.assign(this.state, ser('jsplayground'))
-    document.addEventListener('inputs_updated', 
+    document.addEventListener('inputs_updated',
       (e:any) => this.inputsUpdated(e)
     )
-    document.addEventListener('state_updated', 
+    document.addEventListener('state_updated',
       (e:any) => this.stateUpdated(e)
     )
     this.dispatch('state_updated', this.state)
+
+    this.installLogger()
+  }
+
+  installLogger() {
+    // Disable code-sandbox console
+    if (console.feed) {
+      Object.keys(console.feed.pointers).forEach(key => {
+        console[key] = console.feed.pointers[key]
+      })
+    }
+    Hook(
+      window.console,
+      log => {
+        this.setState({ logs: [...this.state.logs, log] })
+      },
+      false
+    )
+    console.warn = console.feed.pointers.warn = function () {}
+    console.log('logger installed')
   }
 
   stateUpdated(e:any) {
@@ -68,7 +90,7 @@ export default class JavascriptPlayground extends Component {
     const debounceRebuild = () => {
       this.rebuildEngine()
     }
-    debounce(debounceRebuild, 100)()    
+    debounce(debounceRebuild, 100)()
   }
 
   setComponentState(s) {
@@ -84,19 +106,14 @@ export default class JavascriptPlayground extends Component {
   dispatch (e:any, p:any = null) {
     document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
   }
-  
-  get consoleElement() {
-    if(this.consoleEl) {
-      return this.consoleEl
-    }
-    this.consoleEl = document.getElementById('console-log-parent')
-    return this.consoleEl
-  }
-  
+
   render() {
     return (<div style={styles}>
       <PhosphorController html={this.state.html} js={this.state.js} css={this.state.css} />
-    (React.createPortal({<ConsolePanel logs={this.state.logs} />}, this.consoleElement))
+    {document.getElementById('console-log-parent')?ReactDOM.createPortal(
+      (<ConsolePanel logs={this.state.logs} />),
+      document.getElementById('console-log-parent')
+    ):(<div/>)}
     </div>)
   }
 }

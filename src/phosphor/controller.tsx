@@ -108,11 +108,11 @@ export default class PhosphorController extends React.PureComponent {
       palette.addItem({ command: 'sketch:run', category: 'Sketch' });
       palette.addItem({ command: 'sketch:livemode', category: 'Sketch' });
 
-      document.addEventListener('contextmenu', (event: MouseEvent) => {
-        if (contextMenu.open(event)) {
-          event.preventDefault();
-        }
-      });
+      // document.addEventListener('contextmenu', (event: MouseEvent) => {
+      //   if (contextMenu.open(event)) {
+      //     event.preventDefault();
+      //   }
+      // });
    
       // contextMenu.addItem({ command: 'workspace:new', selector: '.p-CommandPalette'});
       // contextMenu.addItem({ command: 'workspace:clone',selector: '.p-CommandPalette'});
