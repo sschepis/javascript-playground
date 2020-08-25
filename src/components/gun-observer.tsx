@@ -7,17 +7,16 @@ import randomstring from 'randomstring'
 
 import peers from './gun-peers.json'
 
-export default class GunObserver extends Component {
+export default class GunService {
   state
   constructor(props) {
-    super(props)
-    this.state = {
+    this.state = Object.assign({
       observablePaths: [],
       onEmit: (o) => console.log(o),
       gun: new Gun(peers),
       user: null,
-      observedNodes: []
-    };
+      observedNodes: {}
+    }, props)
     this.state.user = this.state.gun.user()
     this.state = Object.assign(this.state, props)
     
@@ -47,35 +46,38 @@ export default class GunObserver extends Component {
       }
       this.state.gun.on('create', function() {
         if(this.state.onCreate) {
-          this.state.onCreate(this.state.user, this.state.auth)
+          this.state.onCreate(this.state.user, this.state.auth, true)
         }
       })
       this.state.gun.on('auth', function() {
         if(this.state.onAuth) {
-          this.state.onAuth(this.state.user, this.state.auth.username)
+          this.state.onAuth(this.state.user, this.state.auth.username, true)
         }
       })
-    
-      const ops = this.state.observablePaths
-      ops.forEach(opath=>{
-        const pathParts = opath
-          .split('/')
-          .filter(e=>e)
-          .map(e=>e.trim())
-        const gun = this.userGun
-        var node = gun
-        pathParts.forEach(p => node = node.get(p))
-        node.on((valu) => {
-          if (this.state.onEmit) {
-            this.state.onEmit(opath, node, valu)
-          }
-        })
-        if(this.state.onObserving) {
-          this.state.onObserving(opath, node)
-        }
-        this.state.observedNodes.push(node)
-      })
+      this.observe(this.state.observablePaths)
     }
+  }
+
+  observe(paths) {
+    const ops = paths
+    ops.forEach(opath=>{
+      const pathParts = opath
+        .split('/')
+        .filter(e=>e)
+        .map(e=>e.trim())
+      const gun = this.userGun
+      var node = gun
+      pathParts.forEach(p => node = node.get(p))
+      node.on((valu, key) => {
+        if (this.state.onEmit) {
+          this.state.onEmit(opath, node, valu, key)
+        }
+      })
+      if(this.state.onObserving) {
+        this.state.onObserving(opath, node)
+      }
+      this.state.observedNodes[opath] = node
+    })
   }
 
   get userGun() {

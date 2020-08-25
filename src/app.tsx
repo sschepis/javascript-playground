@@ -10,6 +10,8 @@ import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
 import GunObserver from './components/gun-observer'
 
+import Embed from 'react-runkit'
+
 export default class JavascriptPlayground extends Component {
   state: {
     logs: [],
@@ -18,13 +20,17 @@ export default class JavascriptPlayground extends Component {
     js,
     jslibs,
     csslibs,
+    runkitjs,
     compiledPage,
     auth,
     observablePaths
   }
   consoleEl
   updatedEvent
+  gunObserver
   engine
+  gun
+  _gun
   constructor(props: any) {
     super(props)
     this.state = {
@@ -42,20 +48,30 @@ export default class JavascriptPlayground extends Component {
         '# remove the \'#\' in front of the library to use it, one library per line',
         '#//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css',
       ],
+      runkitjs: `exports.endpoint = function(request, response) {\n  // your code goes here\n}`,
       compiledPage: '',
       auth: {
         create: true
       },
       observablePaths: [
-        'hello/my/precious'
       ]
     }
+    this._gun = {}
     this.state = Object.assign(this.state, ser('jsplayground'))
     this.handleRefresh = this.handleRefresh.bind(this)
     this.handleCreate = this.handleCreate.bind(this)
     this.handleAuth = this.handleAuth.bind(this)
     this.handleEmit = this.handleEmit.bind(this)
     this.handleObserving = this.handleObserving.bind(this)
+    const gprops = {
+      auth:this.state.auth,
+      observablePaths:this.state.observablePaths,
+      onEmit:this.handleEmit,
+      onObserving:this.handleObserving,
+      onAuth:this.handleAuth,
+      onCreate:this.handleCreate
+    }
+    this.gunObserver = new GunObserver(gprops) 
   }
 
   rebuildEngine() {
@@ -159,21 +175,52 @@ export default class JavascriptPlayground extends Component {
   }
 
   handleCreate(o, v, c) {
-    this.state.auth = {
+    this._gun.user = o
+    super.setState({auth : {
       username: v.username,
       password: v.password
-    }
-    console.log ('handleCreate', o, v, c)
+    }})
+    console.log('connected', `to the decentralized web. welcome, new user ${v.username}`)
+    this.initObservables(v.username)
   }
 
-  handleAuth(u, v, c) {
-    console.log('handleAuth', u, v, c)
+  handleAuth(u, v) {
+    this._gun.user = u
+    super.setState({auth : {
+      username: v
+    }})
+    console.log('connected', `to the decentralized web. welcome, user ${v}`)
+    this.initObservables(v)
   }
+
+  initObservables(v) {
+    this.state = Object.assign(this.state, {
+      observablePaths : [
+        `${v}/decentralit/jsplayground/workspaces`,
+        `${v}/decentralit/jsplayground/activeworkspace`,
+        `${v}/decentralit/jsplayground/public`,
+        `${v}/decentralit/jsplayground/followers`,
+        `${v}/decentralit/jsplayground/following`,
+        `/decentralit/jsplayground/public`,
+      ]
+    });
+    super.setState (this.state)
+    if(this.gunObserver) this.gunObserver.observe(this.state.observablePaths)
+  }
+
 
   handleObserving(p, o) {
-    console.log('handleObserving', p, o)
+    const workspacesPath = this.state.observablePaths[0]
+    const activeWrkspcPath = this.state.observablePaths[1]
+    if(p === workspacesPath) {
+      this._gun.workspaces = o
+      console.log('workspaces', p);
+    }
+    else if(p === activeWrkspcPath) {
+      this._gun.activeWorkspace = o
+      console.log('activeWorkspace', p);
+    }
   }
-
   handleEmit(p, o, v) {
     console.log('handleEmit', p, o, v)
   }
@@ -185,17 +232,13 @@ export default class JavascriptPlayground extends Component {
         css: this.state.css.length
       }
     }
-    return (<div 
-      style={styles}><GunObserver 
-      auth={this.state.auth} 
-      observablePaths={this.state.observablePaths}
-      onEmit={this.handleEmit}
-      onObserving={this.handleObserving}
-      onAuth={this.handleAuth}
-      onCreate={this.handleCreate} />
+    const el = i => document.getElementById(i)
+    const cl = () => el('console-log-parent')
+    const rk = () => el('runkit-runner-parent')
+    return (<div style={styles}>
     <PhosphorController tabs={getTabsCount()}/>
-    {document.getElementById('console-log-parent')?ReactDOM.createPortal(
-      (<ConsolePanel logs={this.state.logs}/>),document.getElementById('console-log-parent')):(<div/>)}
+    {cl()?ReactDOM.createPortal((<ConsolePanel logs={this.state.logs}/>),cl()):(<div/>)}
+    {rk()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitjs} mode={'endpoint'}/></div>),rk()):(<div/>)}
     </div>)
   }
 }

@@ -13,6 +13,7 @@ import {
 import {JSInputWidget, HTMLInputWidget,CSSInputWidget,JSLibsWidget,CSSLibsWidget}  from './editor-input'
 import CompiledOutputWidget from './compiled-output'
 import ConsoleOutputWidget from './console-output'
+import RunkitRunnerWidget from './runkit-runner'
 import { ser } from '../components/js-playground-engine'
 
 export default class PhosphorController extends React.PureComponent {
@@ -29,6 +30,7 @@ export default class PhosphorController extends React.PureComponent {
   csslibsWidget
   cssWidget
   htmlWidget
+  runkitRunnerWidget
   cssWidgets
   jsWidgets
   props: {
@@ -179,6 +181,7 @@ export default class PhosphorController extends React.PureComponent {
       this.csslibsWidget = new CSSLibsWidget('CSS Includes');
       this.jslibsWidget = new JSLibsWidget('Javascript Includes');
       this.htmlWidget = new HTMLInputWidget('HTML');
+      this.runkitRunnerWidget = new RunkitRunnerWidget('Runkit');
       this.jsWidgets.push(this.javascriptWidget)
       this.cssWidgets.push(this.cssWidget)
 
@@ -188,6 +191,7 @@ export default class PhosphorController extends React.PureComponent {
       dock.addWidget(this.cssWidget, { mode: 'split-bottom', ref: this.javascriptWidget });
       dock.addWidget(this.htmlWidget, { mode: 'split-right', ref: this.cssWidget });
       dock.addWidget(this.jslibsWidget, { ref: this.javascriptWidget });
+      dock.addWidget(this.runkitRunnerWidget, { ref: this.javascriptWidget });
       dock.addWidget(this.csslibsWidget, { ref: this.cssWidget });
 
       const createJsTab = () => {

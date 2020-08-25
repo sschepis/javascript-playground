@@ -40,7 +40,6 @@ export abstract class EditorInputWidget extends Widget {
   initWidget(props) {
     const self = this
     this.setFlag(Widget.Flag.DisallowLayout)
-    this.addClass('absolute-component')
     this.addClass('content')
     this.addClass('editor-input')
     this.title.label = props.label

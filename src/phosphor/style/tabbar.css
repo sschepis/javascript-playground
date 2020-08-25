@@ -11,6 +11,10 @@
   max-height: 24px;
 }
 
+.p-TabBar-tabLabel {
+  color: #a0a0a0;
+}
+
 .p-TabBar-content {
   min-width: 0;
   min-height: 0;
