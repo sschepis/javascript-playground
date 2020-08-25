@@ -89,11 +89,12 @@ export default class JSPlaygroundEngine {
     </style>
     <script type="text/javascript">
       console = window.console = window.parent.console
-      const loadJs = (f) => {
-        const s = document.createElement('script')
-        s.setAttribute('type','text/javascript')
-        s.setAttribute('src', f)
-        document.body.appendChild(s)
+      function require(url, callback) {
+        var e = document.createElement("script");
+        e.src = url;
+        e.type="text/javascript";
+        e.addEventListener('load', callback);
+        document.getElementsByTagName("head")[0].appendChild(e);
       }
     </script>
     ${toArray(this.state.jslibs).map(el => {
