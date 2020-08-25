@@ -14,6 +14,7 @@ import {JSInputWidget, HTMLInputWidget,CSSInputWidget,JSLibsWidget,CSSLibsWidget
 import CompiledOutputWidget from './compiled-output'
 import ConsoleOutputWidget from './console-output'
 import RunkitRunnerWidget from './runkit-runner'
+import RunkitEndpointWidget from './runkit-endpoint'
 import { ser } from '../components/js-playground-engine'
 
 export default class PhosphorController extends React.PureComponent {
@@ -30,6 +31,7 @@ export default class PhosphorController extends React.PureComponent {
   csslibsWidget
   cssWidget
   htmlWidget
+  runkitEndpointWidget
   runkitRunnerWidget
   cssWidgets
   jsWidgets
@@ -124,7 +126,6 @@ export default class PhosphorController extends React.PureComponent {
         label: 'Clear Console',
         mnemonic: 1,
         caption: 'Clear the Javascript Console',
-        caption: 'Clear Console',
         execute: () => {
           this.dispatch('clear_console')
         }
@@ -181,7 +182,9 @@ export default class PhosphorController extends React.PureComponent {
       this.csslibsWidget = new CSSLibsWidget('CSS Includes');
       this.jslibsWidget = new JSLibsWidget('Javascript Includes');
       this.htmlWidget = new HTMLInputWidget('HTML');
-      this.runkitRunnerWidget = new RunkitRunnerWidget('Runkit');
+      this.runkitEndpointWidget = new RunkitEndpointWidget('Runkit Endpoint');
+      this.runkitRunnerWidget = new RunkitRunnerWidget('Runkit Runner');
+
       this.jsWidgets.push(this.javascriptWidget)
       this.cssWidgets.push(this.cssWidget)
 
@@ -191,6 +194,7 @@ export default class PhosphorController extends React.PureComponent {
       dock.addWidget(this.cssWidget, { mode: 'split-bottom', ref: this.javascriptWidget });
       dock.addWidget(this.htmlWidget, { mode: 'split-right', ref: this.cssWidget });
       dock.addWidget(this.jslibsWidget, { ref: this.javascriptWidget });
+      dock.addWidget(this.runkitEndpointWidget, { ref: this.javascriptWidget });
       dock.addWidget(this.runkitRunnerWidget, { ref: this.javascriptWidget });
       dock.addWidget(this.csslibsWidget, { ref: this.cssWidget });
 

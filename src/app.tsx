@@ -20,7 +20,8 @@ export default class JavascriptPlayground extends Component {
     js,
     jslibs,
     csslibs,
-    runkitjs,
+    runkitrunnerjs,
+    runkitendpointjs,
     compiledPage,
     auth,
     observablePaths
@@ -68,7 +69,8 @@ export default class JavascriptPlayground extends Component {
         '# remove the \'#\' in front of the library to use it, one library per line',
         '#//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css',
       ],
-      runkitjs: `exports.endpoint = function(request, response) {\n  // your code goes here\n}`,
+      runkitendpointjs: `exports.endpoint = function(request, response) {\n  // your code goes here\n  return response.end('hello')}`,
+      runkitrunnerjs: `  // your code goes here`,
       compiledPage: '',
       auth: {
         create: true
@@ -252,11 +254,13 @@ export default class JavascriptPlayground extends Component {
     }
     const el = i => document.getElementById(i)
     const cl = () => el('console-log-parent')
-    const rk = () => el('runkit-runner-parent')
+    const rk = () => el('runkit-endpoint-parent')
+    const rn = () => el('runkit-runner-parent')
     return (<div style={styles}>
     <PhosphorController tabs={getTabsCount()}/>
     {cl()?ReactDOM.createPortal((<ConsolePanel logs={this.state.logs}/>),cl()):(<div/>)}
-    {rk()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitjs} mode={'endpoint'}/></div>),rk()):(<div/>)}
+    {rk()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitendpointjs} mode={'endpoint'}/></div>),rk()):(<div/>)}
+    {rn()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitrunnerjs} /></div>),rn()):(<div/>)}
     </div>)
   }
 }
