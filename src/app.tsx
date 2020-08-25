@@ -8,7 +8,7 @@ import { Hook } from 'console-feed'
 
 import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
-import GunObserver from './components/gun-observer'
+import GunService from './components/gun-service'
 
 import Embed from 'react-runkit'
 
@@ -33,7 +33,27 @@ export default class JavascriptPlayground extends Component {
   _gun
   constructor(props: any) {
     super(props)
-    this.state = {
+    this.buildStateTree(false)
+    this._gun = {}
+    this.state = Object.assign(this.state, ser('jsplayground'))
+    this.handleRefresh = this.handleRefresh.bind(this)
+    this.handleCreate = this.handleCreate.bind(this)
+    this.handleAuth = this.handleAuth.bind(this)
+    this.handleEmit = this.handleEmit.bind(this)
+    this.handleObserving = this.handleObserving.bind(this)
+    const gprops = {
+      auth:this.state.auth,
+      observablePaths:this.state.observablePaths,
+      onEmit:this.handleEmit,
+      onObserving:this.handleObserving,
+      onAuth:this.handleAuth,
+      onCreate:this.handleCreate
+    }
+    this.gunObserver = new GunService(gprops)
+  }
+
+  buildStateTree(setState) {
+    const stateTree = {
       logs: [],
       html: '',
       css: [''],
@@ -56,22 +76,11 @@ export default class JavascriptPlayground extends Component {
       observablePaths: [
       ]
     }
-    this._gun = {}
-    this.state = Object.assign(this.state, ser('jsplayground'))
-    this.handleRefresh = this.handleRefresh.bind(this)
-    this.handleCreate = this.handleCreate.bind(this)
-    this.handleAuth = this.handleAuth.bind(this)
-    this.handleEmit = this.handleEmit.bind(this)
-    this.handleObserving = this.handleObserving.bind(this)
-    const gprops = {
-      auth:this.state.auth,
-      observablePaths:this.state.observablePaths,
-      onEmit:this.handleEmit,
-      onObserving:this.handleObserving,
-      onAuth:this.handleAuth,
-      onCreate:this.handleCreate
+    if(setState) {
+      this.setComponentState(stateTree)
+    } else {
+      this.state = stateTree
     }
-    this.gunObserver = new GunObserver(gprops) 
   }
 
   rebuildEngine() {
@@ -98,7 +107,16 @@ export default class JavascriptPlayground extends Component {
     document.addEventListener('clear_console',
       (e:any) => this.setComponentState({logs:[]})
     )
+    document.addEventListener('new_workspace',
+    (e:any) => this.newWorkspace()
+    )
     this.installLogger()
+    this.dispatch('state_inited', this.state)
+    this.dispatch('refresh_view', this.state)
+  }
+
+  newWorkspace() {
+    this.buildStateTree(true)
     this.dispatch('state_inited', this.state)
     this.dispatch('refresh_view', this.state)
   }

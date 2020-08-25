@@ -56,9 +56,9 @@ export default class PhosphorController extends React.PureComponent {
         label: 'New Workspace',
         mnemonic: 0,
         caption: 'Create a new workspace',
-        isEnabled: () => false,
+        isEnabled: () => true,
         execute: () => {
-          console.log('New Tab');
+          this.dispatch('new_workspace')
         }
       });
       this.commandRegistry.addCommand('workspace:open', {
