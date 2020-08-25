@@ -8,6 +8,7 @@ import { Hook } from 'console-feed'
 
 import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
+import GunObserver from './components/gun-observer'
 
 export default class JavascriptPlayground extends Component {
   state: {
@@ -17,7 +18,9 @@ export default class JavascriptPlayground extends Component {
     js,
     jslibs,
     csslibs,
-    compiledPage
+    compiledPage,
+    auth,
+    observablePaths
   }
   consoleEl
   updatedEvent
@@ -39,10 +42,20 @@ export default class JavascriptPlayground extends Component {
         '# remove the \'#\' in front of the library to use it, one library per line',
         '#//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css',
       ],
-      compiledPage: ''
+      compiledPage: '',
+      auth: {
+        create: true
+      },
+      observablePaths: [
+        'hello/my/precious'
+      ]
     }
     this.state = Object.assign(this.state, ser('jsplayground'))
     this.handleRefresh = this.handleRefresh.bind(this)
+    this.handleCreate = this.handleCreate.bind(this)
+    this.handleAuth = this.handleAuth.bind(this)
+    this.handleEmit = this.handleEmit.bind(this)
+    this.handleObserving = this.handleObserving.bind(this)
   }
 
   rebuildEngine() {
@@ -145,6 +158,26 @@ export default class JavascriptPlayground extends Component {
     document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
   }
 
+  handleCreate(o, v, c) {
+    this.state.auth = {
+      username: v.username,
+      password: v.password
+    }
+    console.log ('handleCreate', o, v, c)
+  }
+
+  handleAuth(u, v, c) {
+    console.log('handleAuth', u, v, c)
+  }
+
+  handleObserving(p, o) {
+    console.log('handleObserving', p, o)
+  }
+
+  handleEmit(p, o, v) {
+    console.log('handleEmit', p, o, v)
+  }
+
   render() {
     const getTabsCount = () => {
       return {
@@ -152,7 +185,15 @@ export default class JavascriptPlayground extends Component {
         css: this.state.css.length
       }
     }
-    return (<div style={styles}><PhosphorController tabs={getTabsCount()}/>
+    return (<div 
+      style={styles}><GunObserver 
+      auth={this.state.auth} 
+      observablePaths={this.state.observablePaths}
+      onEmit={this.handleEmit}
+      onObserving={this.handleObserving}
+      onAuth={this.handleAuth}
+      onCreate={this.handleCreate} />
+    <PhosphorController tabs={getTabsCount()}/>
     {document.getElementById('console-log-parent')?ReactDOM.createPortal(
       (<ConsolePanel logs={this.state.logs}/>),document.getElementById('console-log-parent')):(<div/>)}
     </div>)
