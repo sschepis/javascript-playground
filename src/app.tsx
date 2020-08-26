@@ -10,8 +10,10 @@ import randomstring from 'randomstring'
 import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
 import GunService from './components/gun-service'
+//mport MicroModal from './components/micromodal'
 
 import Embed from 'react-runkit'
+import { createFalse } from 'typescript'
 
 const nav = (g, p, s = '/') => {
   var o = g.user
@@ -351,6 +353,10 @@ export default class JavascriptPlayground extends Component {
     //console.log('handleEmit', p, o, v)
   }
 
+  onDialogCLose() {
+
+  }
+
   render() {
     const getTabsCount = () => {
       return {
@@ -369,6 +375,7 @@ export default class JavascriptPlayground extends Component {
     {rk()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitendpointjs} mode={'endpoint'}/></div>),rk()):(<div/>)}
     {rn()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitrunnerjs} /></div>),rn()):(<div/>)}
     {/* {sh()?ReactDOM.createPortal((<div id={'embedframe'}><XTerm /></div>),sh()):(<div/>)} */}
+    {/* <MicroModal title='hello' visible={false} body='Welcome' onClose={this.onDialogClose} /> */}
     </div>)
   }
 }

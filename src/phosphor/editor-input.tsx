@@ -102,6 +102,10 @@ export class HTMLInputWidget extends EditorInputWidget {
       this.editor.setValue(state.detail.html)
     }
   }
+  initWidget(props) {
+    super.initWidget(props)
+    this.title.closable = true
+  }
   editorChanged(delta:any) {
     const debounceEditorChanges = () => {
       const detail = { html: this.editor.getValue() }
@@ -127,6 +131,10 @@ export class CSSInputWidget extends EditorInputWidget {
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
+  }
+  initWidget(props) {
+    super.initWidget(props)
+    this.title.closable = true
   }
   stateInited(state: any) {
     const v = this.editor.getValue()
@@ -163,6 +171,10 @@ export class JSInputWidget extends EditorInputWidget {
     super.initEditor()
     this.editor.session.setMode("ace/mode/javascript");
   }
+  initWidget(props) {
+    super.initWidget(props)
+    this.title.closable = this.index !== 0
+  }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
   }
@@ -198,6 +210,10 @@ export class JSLibsWidget extends EditorInputWidget {
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
   }
+  initWidget(props) {
+    super.initWidget(props)
+    this.title.closable = true
+  }
   stateInited(state: any) {
     const v = this.editor.getValue()
     const nv = state.detail.jslibs.join('\n')
@@ -224,6 +240,10 @@ export class CSSLibsWidget extends EditorInputWidget {
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
+  }
+  initWidget(props) {
+    super.initWidget(props)
+    this.title.closable = true
   }
   stateInited(state: any) {
     const v = this.editor.getValue()
