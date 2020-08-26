@@ -29,7 +29,7 @@ export default class CompiledOutputWidget extends Widget {
     if(!content) {
       return
     }
-    if(this.iframe) {
+    if(this.iframe && this.iframe.parentNode) {
       this.iframe.parentNode.removeChild(this.iframe);
     }
     this.iframe = document.createElement('iframe')
@@ -37,6 +37,21 @@ export default class CompiledOutputWidget extends Widget {
     this.iframe.width = '100%'
     this.iframe.style.border = '1px solid #000'
     this.iframe.srcdoc = content.compiledPage
+    this.iframe.addEventListener("log", function (value) {
+      console.log.apply(null, value);
+    });
+    this.iframe.addEventListener("warn", function (value) {
+      console.warn.apply(null, value);
+    });
+    this.iframe.addEventListener("error", function (value) {
+      console.error.apply(null, value);
+    });
+    this.iframe.addEventListener("info", function (value) {
+      console.info.apply(null, value);
+    });
+    this.iframe.addEventListener("debug", function (value) {
+      console.debug.apply(null, value);
+    });
     this.node.appendChild(this.iframe)
   }
   protected onActivateRequest(msg: Message): void {

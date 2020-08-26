@@ -15,6 +15,7 @@ import CompiledOutputWidget from './compiled-output'
 import ConsoleOutputWidget from './console-output'
 import RunkitRunnerWidget from './runkit-runner'
 import RunkitEndpointWidget from './runkit-endpoint'
+import TerminalInputWidget from './terminal-input'
 import { ser } from '../components/js-playground-engine'
 
 export default class PhosphorController extends React.PureComponent {
@@ -33,6 +34,7 @@ export default class PhosphorController extends React.PureComponent {
   htmlWidget
   runkitEndpointWidget
   runkitRunnerWidget
+  terminalInputWidget
   cssWidgets
   jsWidgets
   props: {
@@ -182,6 +184,7 @@ export default class PhosphorController extends React.PureComponent {
       this.csslibsWidget = new CSSLibsWidget('CSS Includes');
       this.jslibsWidget = new JSLibsWidget('Javascript Includes');
       this.htmlWidget = new HTMLInputWidget('HTML');
+      this.terminalInputWidget = new TerminalInputWidget('Terminal');
       this.runkitEndpointWidget = new RunkitEndpointWidget('Runkit Endpoint');
       this.runkitRunnerWidget = new RunkitRunnerWidget('Runkit Runner');
 
@@ -197,6 +200,7 @@ export default class PhosphorController extends React.PureComponent {
       dock.addWidget(this.runkitEndpointWidget, { ref: this.javascriptWidget });
       dock.addWidget(this.runkitRunnerWidget, { ref: this.javascriptWidget });
       dock.addWidget(this.csslibsWidget, { ref: this.cssWidget });
+      dock.addWidget(this.terminalInputWidget, { ref: this.javascriptWidget });
 
       const createJsTab = () => {
         const w =  new JSInputWidget(this.jsWidgets.length)

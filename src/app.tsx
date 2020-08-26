@@ -256,11 +256,13 @@ export default class JavascriptPlayground extends Component {
     const cl = () => el('console-log-parent')
     const rk = () => el('runkit-endpoint-parent')
     const rn = () => el('runkit-runner-parent')
+    const sh = () => el('terminal-input-parent')
     return (<div style={styles}>
     <PhosphorController tabs={getTabsCount()}/>
     {cl()?ReactDOM.createPortal((<ConsolePanel logs={this.state.logs}/>),cl()):(<div/>)}
     {rk()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitendpointjs} mode={'endpoint'}/></div>),rk()):(<div/>)}
     {rn()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitrunnerjs} /></div>),rn()):(<div/>)}
+    {sh()?ReactDOM.createPortal((<div id={'embedframe'}><XTerm /></div>),sh()):(<div/>)}
     </div>)
   }
 }

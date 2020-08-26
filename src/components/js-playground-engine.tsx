@@ -74,6 +74,9 @@ export default class JSPlaygroundEngine {
     }
     return `<html>
     <head>
+    <script type="text/javascript">
+    console = window.console = window.parent.console
+    </script>
     ${toArray(this.state.csslibs).map(el => {
       if (!el || el.startsWith('#') || el === '') { return }
       return `<link rel="stylesheet" href="${el}" />`
@@ -88,7 +91,6 @@ export default class JSPlaygroundEngine {
     ${Array.isArray(this.state.css) ? this.state.css.join('\n'):this.state.css }
     </style>
     <script type="text/javascript">
-      console = window.console = window.parent.console
       function require(url, callback) {
         var e = document.createElement("script");
         e.src = url;
