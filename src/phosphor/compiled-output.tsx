@@ -59,4 +59,8 @@ export default class CompiledOutputWidget extends Widget {
       this.node.focus()
     }
   }
+
+  static getWidgetTitle() {
+    return "Compiled Output"
+  }
 }

@@ -34,4 +34,7 @@ export default class TerminalInputWidget extends Widget {
       this.node.focus()
     }
   }
+  static getWidgetTitle() {
+    return "Terminal Input"
+  }
 }

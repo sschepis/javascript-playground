@@ -26,4 +26,8 @@ export default class RunkitEndpointWidget extends Widget {
     this.title.closable = false
     this.title.caption = 'Runkit Endpoint'
   }
+
+  static getWidgetTitle() {
+    return "Runkit Endpoint"
+  }
 }

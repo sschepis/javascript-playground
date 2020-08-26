@@ -10,7 +10,8 @@ import randomstring from 'randomstring'
 import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
 import GunService from './components/gun-service'
-//mport MicroModal from './components/micromodal'
+//import MicroModal from './components/micromodal'
+import safeStringify from 'fast-safe-stringify'
 
 import Embed from 'react-runkit'
 import { createFalse } from 'typescript'
@@ -127,7 +128,7 @@ export default class JavascriptPlayground extends Component {
   }
 
   setAuthInfo(a) {
-    ser('jsPlaygroundAuth', JSON.stringify(a))
+    ser('jsPlaygroundAuth', safeStringify.stableStringify(a))
   }
 
   rebuildEngine() {

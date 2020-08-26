@@ -1,5 +1,6 @@
 import React, {h, Component} from 'react'
 import {CommandRegistry} from '@phosphor/commands';
+import safeStringify from 'fast-safe-stringify'
 import {
   Widget,
   CommandPalette,
@@ -18,7 +19,30 @@ import RunkitEndpointWidget from './runkit-endpoint'
 import TerminalInputWidget from './terminal-input'
 import { ser } from '../components/js-playground-engine'
 
+export class ClientDockPanel extends DockPanel {
+  protected onChildAdded(msg: Widget.ChildMessage): void {
+    console.log('child added')
+  }
+  protected onChildRemoved(msg: Widget.ChildMessage): void {
+    const target = msg.child
+    PhosphorController.getInstance()
+      .commandRegistry.addCommand(`view:show_${target.constructor.name}`, {
+      label: `Show ${target.constructor.getWidgetTitle()}`,
+      mnemonic: 1,
+      caption: `Show the ${target.constructor.getWidgetTitle()}`,
+      execute: () => {
+        console.log('show me')
+      }
+    })
+    PhosphorController.getInstance()
+      .commandPalette.addItem({ command: `view:show_${target.constructor.name}`, category: 'View' });
+
+    console.log('child removed', safeStringify.stableStringify(msg))
+  }
+}
+
 export default class PhosphorController extends React.PureComponent {
+  static instance
   _commandRegistry
   _commandPalette
   _contextMenu
@@ -49,6 +73,10 @@ export default class PhosphorController extends React.PureComponent {
     let registry = this.commandRegistry
     let palette = this.commandPalette
     let contextMenu = this.contextMenu
+    PhosphorController.instance = this
+  }
+  static getInstance() {
+    return PhosphorController.instance
   }
   dispatch (e:any, p:any = null) {
     document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
@@ -303,7 +331,7 @@ export default class PhosphorController extends React.PureComponent {
 
   get dockPanel() {
     if(!this._dockPanel) {
-      this._dockPanel = new DockPanel();
+      this._dockPanel = new ClientDockPanel();
       this._dockPanel.id = 'dock'
     }
     return this._dockPanel

@@ -23,4 +23,8 @@ export default class ConsoleOutputWidget extends Widget {
       this.node.focus()
     }
   }
+
+  static getWidgetTitle() {
+    return "Console Output"
+  }
 }

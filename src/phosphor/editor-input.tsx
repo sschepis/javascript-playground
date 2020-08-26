@@ -83,6 +83,9 @@ export abstract class EditorInputWidget extends Widget {
       this.node.focus()
     }
   }
+  static getWidgetTitle() {
+    return "Widget"
+  }
 }
 
 export class HTMLInputWidget extends EditorInputWidget {
@@ -134,7 +137,7 @@ export class CSSInputWidget extends EditorInputWidget {
   }
   initWidget(props) {
     super.initWidget(props)
-    this.title.closable = true
+    this.title.closable = this.index !== 0
   }
   stateInited(state: any) {
     const v = this.editor.getValue()
@@ -149,11 +152,15 @@ export class CSSInputWidget extends EditorInputWidget {
     }
   }
   editorChanged() {
+    this.title.closable = this.index !== 0 && this.editor.getValue()
     const debounceEditorChanges = () => {
       const detail = { css: this.editor.getValue(), index: this.index }
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
+  }
+  static getWidgetTitle() {
+    return "CSS Input"
   }
 }
 
@@ -191,11 +198,15 @@ export class JSInputWidget extends EditorInputWidget {
     }
   }
   editorChanged(delta:any) {
+    this.title.closable = this.index !== 0 && this.editor.getValue()
     const debounceEditorChanges = () => {
       const detail = { js: this.editor.getValue(), index: this.index }
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
+  }
+  static getWidgetTitle() {
+    return "Javascript Input"
   }
 }
 

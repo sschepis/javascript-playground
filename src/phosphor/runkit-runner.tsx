@@ -26,4 +26,8 @@ export default class RunkitRunnerWidget extends Widget {
     this.title.closable = true
     this.title.caption = 'Runkit Runner'
   }
+
+  static getWidgetTitle() {
+    return "Runkit Runner"
+  }
 }
