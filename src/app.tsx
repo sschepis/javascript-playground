@@ -5,12 +5,32 @@ import ReactDOM from 'react-dom'
 import 'regenerator-runtime/runtime'
 import ConsolePanel from './components/console-panel'
 import { Hook } from 'console-feed'
+import randomstring from 'randomstring'
 
 import { PhosphorController, styles } from './phosphor/index'
 import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-engine'
 import GunService from './components/gun-service'
 
 import Embed from 'react-runkit'
+
+const nav = (g, p, s = '/') => {
+  var o = g.user
+  p.split(s)
+   .forEach (el => o = o.get(el))
+  return o
+}
+
+function whenReady(parent, obj, func) {
+  var cnt = 0, intv
+  const _retry = () => {
+    if(cnt > 99 || parent[obj]) {
+      clearInterval(intv)
+    }
+    return parent[obj] ? func() : null
+  }
+  intv = setInterval(() => { _retry(); cnt++ }, 100)
+  return intv
+}
 
 export default class JavascriptPlayground extends Component {
   state: {
@@ -32,11 +52,13 @@ export default class JavascriptPlayground extends Component {
   engine
   gun
   _gun
+  workspaceSaver
   constructor(props: any) {
     super(props)
     this.buildStateTree(false)
-    this._gun = {}
-    this.state = Object.assign(this.state, ser('jsplayground'))
+    this._gun = {
+      observedPaths: []
+    }
     this.handleRefresh = this.handleRefresh.bind(this)
     this.handleCreate = this.handleCreate.bind(this)
     this.handleAuth = this.handleAuth.bind(this)
@@ -51,6 +73,8 @@ export default class JavascriptPlayground extends Component {
       onCreate:this.handleCreate
     }
     this.gunObserver = new GunService(gprops)
+
+    //this.workspaceSaver = setInterval(() => this.saveWorkspaceActual(this.buildWorkspaceState()), 30000)
   }
 
   buildStateTree(setState) {
@@ -72,9 +96,7 @@ export default class JavascriptPlayground extends Component {
       runkitendpointjs: `exports.endpoint = function(request, response) {\n  // your code goes here\n  return response.end('hello')}`,
       runkitrunnerjs: `  // your code goes here`,
       compiledPage: '',
-      auth: {
-        create: true
-      },
+      auth: this.getAuthInfo(),
       observablePaths: [
       ]
     }
@@ -83,6 +105,27 @@ export default class JavascriptPlayground extends Component {
     } else {
       this.state = stateTree
     }
+  }
+
+  getAuthInfo() {
+    const ai = () => {return {
+      username: randomstring.generate(),
+      password: randomstring.generate(),
+      create: true
+    }}
+    try {
+      var a = ser('jsPlaygroundAuth')
+      if(!a) {
+        a = ai()
+      } else a = JSON.parse(a)
+      return a
+    } catch(e) {
+      return ai()
+    }
+  }
+
+  setAuthInfo(a) {
+    ser('jsPlaygroundAuth', JSON.stringify(a))
   }
 
   rebuildEngine() {
@@ -141,9 +184,15 @@ export default class JavascriptPlayground extends Component {
   }
 
   stateUpdated(e:any) {
-    const o = Object.assign({},e.detail)
-    delete o.onRefresh
-    ser('jsplayground', o)
+    if(!this._gun.activeWorkspace) {
+      return
+    }
+    const workspaceUpdatey = () => {
+      const o = Object.assign({}, e.detail)
+      delete o.onRefresh
+      this.saveWorkspace(e)
+    }
+    debounce(workspaceUpdatey, 10000)()
   }
 
   inputsUpdated(e:any) {
@@ -196,24 +245,26 @@ export default class JavascriptPlayground extends Component {
 
   handleCreate(o, v, c) {
     this._gun.user = o
-    super.setState({auth : {
+    delete this.state.auth.create
+    this.setComponentState({auth : {
       username: v.username,
       password: v.password
     }})
-    console.log('connected', `to the decentralized web. welcome, new user ${v.username}`)
+    console.log('Welcome', `to the decentralized web. Welcome, new user ${v.username}`)
     this.initObservables(v.username)
   }
 
   handleAuth(u, v) {
     this._gun.user = u
-    super.setState({auth : {
-      username: v
+    this.setComponentState({auth : {
+      username: v.username,
+      password: v.password
     }})
-    console.log('connected', `to the decentralized web. welcome, user ${v}`)
-    this.initObservables(v)
+    console.log('Connected', `to the decentralized web. Welcome, returning user ${v.username}`)
+    this.initObservables(v.username)
   }
 
-  initObservables(v) {
+  initObservables (v) {
     this.state = Object.assign(this.state, {
       observablePaths : [
         `${v}/decentralit/jsplayground/workspaces`,
@@ -221,28 +272,83 @@ export default class JavascriptPlayground extends Component {
         `${v}/decentralit/jsplayground/public`,
         `${v}/decentralit/jsplayground/followers`,
         `${v}/decentralit/jsplayground/following`,
-        `/decentralit/jsplayground/public`,
+        `/decentralit/jsplayground/announce`,
       ]
     });
-    super.setState (this.state)
+    this.setComponentState(this.state)
+
+    if(!this._gun.pending) this._gun.pending = {}
+    this._gun.workspaces = this.state.observablePaths[0]
+    this._gun.activeWorkspace = this.state.observablePaths[1]
+    this._gun.announcePath = this.state.observablePaths[5]
+
     if(this.gunObserver) this.gunObserver.observe(this.state.observablePaths)
+
+    this.initWorkspace()
   }
 
-
-  handleObserving(p, o) {
-    const workspacesPath = this.state.observablePaths[0]
-    const activeWrkspcPath = this.state.observablePaths[1]
-    if(p === workspacesPath) {
-      this._gun.workspaces = o
-      console.log('workspaces', p);
+  handleObserving (p, o) {
+    if(!this._gun) {
+      return
     }
-    else if(p === activeWrkspcPath) {
-      this._gun.activeWorkspace = o
-      console.log('activeWorkspace', p);
+    const contains = this._gun.observedPaths.find (e => e === p)
+    if(!contains) {
+      this._gun.observedPaths.push(p)
+      if(p === this._gun.pending.workspaces) {
+        this._gun.workspaces = this._gun.pending.workspaces
+        delete this._gun.pending.workspaces
+      } else if(p === this._gun.pending.activeWorkspace) {
+        this._gun.activeWorkspace = this._gun.pending.activeWorkspace
+        delete this._gun.pending.activeWorkspace
+      }else if(p === this._gun.pending.announcePath) {
+        this._gun.announcePath = this._gun.pending.announcePath
+        delete this._gun.pending.announcePath
+      }
     }
   }
+
+  initWorkspace() {
+    this.loadWorkspace()
+  }
+  
+  loadWorkspace() {
+    if(!this._gun || !this._gun.activeWorkspace) {
+      return //whenReady(this._gun, 'activeWorkspace', () => this.loadWorkspace())
+    }
+    nav(this._gun, this._gun.activeWorkspace).once((v) => {
+      console.log(`loading active workspace for user ${this.state.auth.username}`)
+      if(v) v = JSON.parse(v)
+      this.setComponentState(v)
+      this.dispatch('state_updated', v)
+      setTimeout(() => this.dispatch('state_refresh', v), 10)
+    })
+  }
+
+  saveWorkspace(w) {
+    if(!this._gun || !this._gun.activeWorkspace) {
+      return //whenReady(this._gun, 'activeWorkspace', () => this.saveWorkspace(w))
+    }
+    this.setAuthInfo(this.state.auth)
+    nav(this._gun, this._gun.activeWorkspace).put(JSON.stringify(this.state))
+    console.log(`saved active workspace for user ${this.state.auth.username}`)
+  }
+
+  saveWorkspace_(w) {
+
+  }
+
+  buildWorkspaceState(v:any = null) {
+    if(v) {
+      return this.setComponentState(v)
+    }
+    const o = Object.assign({
+      auth: this.getAuthInfo()
+    }, this.state)
+    return o
+  }
+
   handleEmit(p, o, v) {
-    console.log('handleEmit', p, o, v)
+    //console.log('handleEmit', p, o, v)
   }
 
   render() {
@@ -262,7 +368,7 @@ export default class JavascriptPlayground extends Component {
     {cl()?ReactDOM.createPortal((<ConsolePanel logs={this.state.logs}/>),cl()):(<div/>)}
     {rk()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitendpointjs} mode={'endpoint'}/></div>),rk()):(<div/>)}
     {rn()?ReactDOM.createPortal((<div id={'embedframe'}><Embed source={this.state.runkitrunnerjs} /></div>),rn()):(<div/>)}
-    {sh()?ReactDOM.createPortal((<div id={'embedframe'}><XTerm /></div>),sh()):(<div/>)}
+    {/* {sh()?ReactDOM.createPortal((<div id={'embedframe'}><XTerm /></div>),sh()):(<div/>)} */}
     </div>)
   }
 }

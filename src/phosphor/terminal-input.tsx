@@ -1,9 +1,9 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
-import { Terminal } from 'xterm';
+import TerminalSession from '../term/session'
 
 export default class TerminalInputWidget extends Widget {
-  term
+  session
   static contentNode(d) {
     const n = document.createElement('div')
     n.id = d
@@ -25,9 +25,9 @@ export default class TerminalInputWidget extends Widget {
     this.title.closable = false
     this.title.caption = 'Terminal Input'
 
-    this.term = new Terminal();
-    this.term.open(this.node);
-    this.term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+    // this.session = new TerminalSession(this.node)
+    // this.session.start()
+    
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {

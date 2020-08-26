@@ -3,7 +3,7 @@ import Program from '../program.js'
 import { expandPath } from './utils.js'
 
 export class cat extends Program {
-  main(status) {
+  main (status) {
     if (this.args.length > 0) {
       this.args.forEach((arg) => {
         const path = expandPath(this.session.cwd, arg)
@@ -29,7 +29,7 @@ export class cat extends Program {
 }
 
 export class cd extends Program {
-  main(status) {
+  main (status) {
     const path = this.args[0]
     const newCwd = expandPath(this.session.cwd, path)
     this.session.fs.stat(newCwd, (err, stat) => {
@@ -48,14 +48,14 @@ export class cd extends Program {
 }
 
 export class clear extends Program {
-  main(status) {
+  main (status) {
     this.term.clear()
     status(0)
   }
 }
 
 export class echo extends Program {
-  main(status) {
+  main (status) {
     const strings = this.args.map((arg) => expandVariables(arg, this.session.shell))
     this.stdout.writeln(strings.join(' '))
     status(0)
@@ -63,7 +63,7 @@ export class echo extends Program {
 }
 
 export class ls extends Program {
-  main(status) {
+  main (status) {
     const path = expandPath(this.session.cwd, this.args[0] || '.')
     this.session.fs.readdir(path, (err, files) => {
       if (err) {
@@ -80,7 +80,7 @@ export class ls extends Program {
 }
 
 export class mkdir extends Program {
-  main(status) {
+  main (status) {
     const path = expandPath(this.session.cwd, this.args[0] || '.')
     this.session.fs.mkdir(path, (err) => {
       if (err) {
@@ -94,14 +94,14 @@ export class mkdir extends Program {
 }
 
 export class pwd extends Program {
-  main(status) {
+  main (status) {
     this.stdout.writeln(this.session.cwd)
     status(0)
   }
 }
 
 export class rm extends Program {
-  main(status) {
+  main (status) {
     const path = expandPath(this.session.cwd, this.args[0] || '.')
     this.session.fs.unlink(path, (err) => {
       if (err) {
@@ -115,7 +115,7 @@ export class rm extends Program {
 }
 
 export class rmdir extends Program {
-  main(status) {
+  main (status) {
     const path = expandPath(this.session.cwd, this.args[0] || '.')
     this.session.fs.rmdir(path, (err) => {
       if (err) {
@@ -129,7 +129,7 @@ export class rmdir extends Program {
 }
 
 export class sort extends Program {
-  main(status) {
+  main (status) {
     let lines = []
     if (this.args.length > 0) {
       this.args.forEach((arg) => {
@@ -156,7 +156,7 @@ export class sort extends Program {
     }
   }
 
-  static test() {
+  static test () {
     assertStdout(sort, [], 'a\nb\nz\n', (stdin) => {
       stdin.writeln('b')
       stdin.writeln('z')
@@ -167,7 +167,7 @@ export class sort extends Program {
 }
 
 export class touch extends Program {
-  main(status) {
+  main (status) {
     const path = expandPath(this.session.cwd, this.args[0] || '.')
     this.session.fs.writeFile(path, '', (err) => {
       if (err) {
@@ -196,12 +196,12 @@ const assertEq = (expected, actual, testName) => {
   console.assert(expected === actual, testName, JSON.stringify(expected), '!==', JSON.stringify(actual))
 }
 
-const assertStdout = (programClass, args, expected, writer) => {
+const assertStdout = (ProgramClass, args, expected, writer) => {
   const session = {}
   const stdin = new Stream()
   const stdout = new Stream()
   const stderr = new Stream()
-  const program = new programClass(args, session, stdin, stdout, stderr)
+  const program = new ProgramClass(args, session, stdin, stdout, stderr)
   program.main((status) => {
     if (status !== 0) throw status
     assertEq(expected, stdout.dataAsString)

@@ -10,13 +10,13 @@
  * @api public
  */
 
-function Rope(str) {
+function Rope    (str) {
   // allow usage without `new`
-  if (!(this instanceof Rope)) return new Rope(str);
+  if (!(this instanceof Rope)) return new Rope(str)
 
-  this._value = str;
-  this.length = str.length;
-  adjust.call(this);
+  this._value = str
+  this.length = str.length
+  adjust.call(this)
 }
 
 /**
@@ -25,7 +25,7 @@ function Rope(str) {
  * @api public
  */
 
-Rope.SPLIT_LENGTH = 1000;
+Rope.SPLIT_LENGTH = 1000
 
 /**
  * The threshold used to join two child nodes into one leaf node.
@@ -33,7 +33,7 @@ Rope.SPLIT_LENGTH = 1000;
  * @api public
  */
 
-Rope.JOIN_LENGTH = 500;
+Rope.JOIN_LENGTH = 500
 
 /**
  * The threshold used to trigger a tree node rebuild when rebalancing the rope.
@@ -41,7 +41,7 @@ Rope.JOIN_LENGTH = 500;
  * @api public
  */
 
-Rope.REBALANCE_RATIO = 1.2;
+Rope.REBALANCE_RATIO = 1.2
 
 /**
  * Adjusts the tree structure, so that very long nodes are split
@@ -53,16 +53,16 @@ Rope.REBALANCE_RATIO = 1.2;
 function adjust() {
   if (typeof this._value != 'undefined') {
     if (this.length > Rope.SPLIT_LENGTH) {
-      var divide = Math.floor(this.length / 2);
-      this._left = new Rope(this._value.substring(0, divide));
-      this._right = new Rope(this._value.substring(divide));
-      delete this._value;
+      var divide = Math.floor(this.length / 2)
+      this._left = new Rope(this._value.substring(0, divide))
+      this._right = new Rope(this._value.substring(divide))
+      delete this._value
     }
   } else {
     if (this.length < Rope.JOIN_LENGTH) {
-      this._value = this._left.toString() + this._right.toString();
-      delete this._left;
-      delete this._right;
+      this._value = this._left.toString() + this._right.toString()
+      delete this._left
+      delete this._right
     }
   }
 }
@@ -75,9 +75,9 @@ function adjust() {
 
 Rope.prototype.toString = function() {
   if (typeof this._value != 'undefined') {
-    return this._value;
+    return this._value
   } else {
-    return this._left.toString() + this._right.toString();
+    return this._left.toString() + this._right.toString()
   }
 }
 
@@ -92,28 +92,28 @@ Rope.prototype.toString = function() {
  */
 
 Rope.prototype.remove = function(start, end) {
-  if (start < 0 || start > this.length) throw new RangeError('Start is not within rope bounds.');
-  if (end < 0 || end > this.length) throw new RangexError('End is not within rope bounds.');
-  if (start > end) throw new RangexError('Start is greater than end.');
+  if (start < 0 || start > this.length) throw new RangeError('Start is not within rope bounds.')
+  if (end < 0 || end > this.length) throw new RangexError('End is not within rope bounds.')
+  if (start > end) throw new RangexError('Start is greater than end.')
   if (typeof this._value != 'undefined') {
-    this._value = this._value.substring(0, start) + this._value.substring(end);
-    this.length = this._value.length;
+    this._value = this._value.substring(0, start) + this._value.substring(end)
+    this.length = this._value.length
   } else {
-    var leftLength = this._left.length;
-    var leftStart = Math.min(start, leftLength);
-    var leftEnd = Math.min(end, leftLength);
-    var rightLength = this._right.length;
-    var rightStart = Math.max(0, Math.min(start - leftLength, rightLength));
-    var rightEnd = Math.max(0, Math.min(end - leftLength, rightLength));
+    var leftLength = this._left.length
+    var leftStart = Math.min(start, leftLength)
+    var leftEnd = Math.min(end, leftLength)
+    var rightLength = this._right.length
+    var rightStart = Math.max(0, Math.min(start - leftLength, rightLength))
+    var rightEnd = Math.max(0, Math.min(end - leftLength, rightLength))
     if (leftStart < leftLength) {
-      this._left.remove(leftStart, leftEnd);
+      this._left.remove(leftStart, leftEnd)
     }
     if (rightEnd > 0) {
-      this._right.remove(rightStart, rightEnd);
+      this._right.remove(rightStart, rightEnd)
     }
-    this.length = this._left.length + this._right.length;
+    this.length = this._left.length + this._right.length
   }
-  adjust.call(this);
+  adjust.call(this)
 }
 
 /**
@@ -126,22 +126,22 @@ Rope.prototype.remove = function(start, end) {
 
 Rope.prototype.insert = function(position, value) {
   if (typeof value != 'string') {
-    value = value.toString();
+    value = value.toString()
   }
-  if (position < 0 || position > this.length) throw new RangeError('position is not within rope bounds.');
+  if (position < 0 || position > this.length) throw new RangeError('position is not within rope bounds.')
   if (typeof this._value != 'undefined') {
-    this._value = this._value.substring(0, position) + value.toString() + this._value.substring(position);
-    this.length = this._value.length;
+    this._value = this._value.substring(0, position) + value.toString() + this._value.substring(position)
+    this.length = this._value.length
   } else {
-    var leftLength = this._left.length;
+    var leftLength = this._left.length
     if (position < leftLength) {
-      this._left.insert(position, value);
-      this.length = this._left.length + this._right.length;
+      this._left.insert(position, value)
+      this.length = this._left.length + this._right.length
     } else {
-      this._right.insert(position - leftLength, value);
+      this._right.insert(position - leftLength, value)
     }
   }
-  adjust.call(this);
+  adjust.call(this)
 }
 
 /**
@@ -152,10 +152,10 @@ Rope.prototype.insert = function(position, value) {
 
 Rope.prototype.rebuild = function() {
   if (typeof this._value == 'undefined') {
-    this._value = this._left.toString() + this._right.toString();
-    delete this._left;
-    delete this._right;
-    adjust.call(this);
+    this._value = this._left.toString() + this._right.toString()
+    delete this._left
+    delete this._right
+    adjust.call(this)
   }
 }
 
@@ -169,10 +169,10 @@ Rope.prototype.rebalance = function() {
   if (typeof this._value == 'undefined') {
     if (this._left.length / this._right.length > Rope.REBALANCE_RATIO ||
         this._right.length / this._left.length > Rope.REBALANCE_RATIO) {
-      this.rebuild();
+      this.rebuild()
     } else {
-      this._left.rebalance();
-      this._right.rebalance();
+      this._left.rebalance()
+      this._right.rebalance()
     }
   }
 }
@@ -189,39 +189,39 @@ Rope.prototype.rebalance = function() {
 
 Rope.prototype.substring = function(start, end) {
   if (typeof end == 'undefined') {
-    end = this.length;
+    end = this.length
   }
   if (start < 0 || isNaN(start)) {
-    start = 0;
+    start = 0
   } else if (start > this.length) {
-    start = this.length;
+    start = this.length
   }
   if (end < 0 || isNaN(end)) {
-    end = 0;
+    end = 0
   } else if (end > this.length) {
-    end = this.length;
+    end = this.length
   }
   if (typeof this._value != 'undefined') {
-    return this._value.substring(start, end);
+    return this._value.substring(start, end)
   } else {
-    var leftLength = this._left.length;
-    var leftStart = Math.min(start, leftLength);
-    var leftEnd = Math.min(end, leftLength);
-    var rightLength = this._right.length;
-    var rightStart = Math.max(0, Math.min(start - leftLength, rightLength));
-    var rightEnd = Math.max(0, Math.min(end - leftLength, rightLength));
+    var leftLength = this._left.length
+    var leftStart = Math.min(start, leftLength)
+    var leftEnd = Math.min(end, leftLength)
+    var rightLength = this._right.length
+    var rightStart = Math.max(0, Math.min(start - leftLength, rightLength))
+    var rightEnd = Math.max(0, Math.min(end - leftLength, rightLength))
 
     if (leftStart != leftEnd) {
       if (rightStart != rightEnd) {
-        return this._left.substring(leftStart, leftEnd) + this._right.substring(rightStart, rightEnd);
+        return this._left.substring(leftStart, leftEnd) + this._right.substring(rightStart, rightEnd)
       } else {
-        return this._left.substring(leftStart, leftEnd);
+        return this._left.substring(leftStart, leftEnd)
       }
     } else {
       if (rightStart != rightEnd) {      
-        return this._right.substring(rightStart, rightEnd);
+        return this._right.substring(rightStart, rightEnd)
       } else {
-        return '';
+        return ''
       }
     }
   }
@@ -237,22 +237,22 @@ Rope.prototype.substring = function(start, end) {
  */
 
 Rope.prototype.substr = function(start, length) {
-  var end;
+  var end
   if (start < 0) {
-    start = this.length + start;
+    start = this.length + start
     if (start < 0) {
-      start = 0;
+      start = 0
     }
   }
   if (typeof length == 'undefined') {
-    end = this.length;
+    end = this.length
   } else {
     if (length < 0) {
-      length = 0;
+      length = 0
     }
-    end = start + length;
+    end = start + length
   }
-  return this.substring(start, end);
+  return this.substring(start, end)
 }
 
 /**
@@ -263,7 +263,7 @@ Rope.prototype.substr = function(start, length) {
  */
 
 Rope.prototype.charAt = function(position) {
-  return this.substring(position, position + 1);
+  return this.substring(position, position + 1)
 }
 
 /**
@@ -274,9 +274,9 @@ Rope.prototype.charAt = function(position) {
  */
 
 Rope.prototype.charCodeAt = function(position) {
-  return this.substring(position, position + 1).charCodeAt(0);
+  return this.substring(position, position + 1).charCodeAt(0)
 }
 
 // changed from original:
-//module.exports = Rope;
-window.Rope = Rope;
+//module.exports = Rope
+window.Rope = Rope

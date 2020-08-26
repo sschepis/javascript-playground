@@ -1,8 +1,14 @@
 // import a CSS module
 import React, { h, Component } from 'react'
 import Gun from 'gun/gun'
+import'gun/lib/radix'
+import'gun/lib/radisk'
+import'gun/lib/store'
+import'gun/lib/rindexed'
 import'gun/sea'
 import'gun/lib/webrtc'
+
+
 import randomstring from 'randomstring'
 
 import peers from './gun-peers.json'
@@ -41,17 +47,17 @@ export default class GunService {
         }
         this.state.user.auth(username, password)
         if(this.state.onAuth) {
-          this.state.onAuth(this.userGun, this.state.auth.username, false)
+          this.state.onAuth(this.userGun, this.state.auth, false)
         }
       }
-      this.state.gun.on('create', function() {
+      this.state.gun.on('create', () => {
         if(this.state.onCreate) {
           this.state.onCreate(this.state.user, this.state.auth, true)
         }
       })
-      this.state.gun.on('auth', function() {
+      this.state.gun.on('auth',() => {
         if(this.state.onAuth) {
-          this.state.onAuth(this.state.user, this.state.auth.username, true)
+          this.state.onAuth(this.state.user, this.state.auth, true)
         }
       })
       this.observe(this.state.observablePaths)

@@ -1,12 +1,12 @@
-import BrowserFS from 'browserfs'
-
 export let fsWrapper = {}
 
-BrowserFS.FileSystem.XmlHttpRequest.Create({
+const BFSFile = BrowserFS.FileSystem
+
+BFSFile.XmlHttpRequest.Create({
   index: 'js/bin/index.json'
 }, (e, bin) => {
-  BrowserFS.FileSystem.LocalStorage.Create((e, root) => {
-    BrowserFS.FileSystem.MountableFileSystem.Create({
+  BFSFile.LocalStorage.Create((e, root) => {
+    BFSFile.MountableFileSystem.Create({
       '/': root,
       '/bin': bin
     }, (e, mfs) => {

@@ -12,12 +12,13 @@ class Pipeline {
     this.stderr = stderr
   }
 
-  start(status) {
+  start (status) {
     let stdin = this.stdin
     let stdout = this.stdout
-    let stderr = this.stderr
+    const stderr = this.stderr
     mapAsync(this.parts, (part, cb) => {
       new Resolver(part, this.session).resolve(cb)
+      /* eslint-disable */
     }, (err, parts) => {
       parts.forEach(([command, args, program], index) => {
         const first = index == 0

@@ -49,6 +49,9 @@ export abstract class EditorInputWidget extends Widget {
     document.addEventListener('state_inited', (e:any) => {
       this.stateInited(e)
     })
+    document.addEventListener('state_refresh', (e:any) => {
+      this.stateInited(e)
+    })
     this.editor.on('change', (delta) => {
       self.editorChanged(delta)
     })
