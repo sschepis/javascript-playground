@@ -1,5 +1,8 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
+import RedisplayableWidget from './widget'
+
+import $ from 'jquery'
 
 import ace from 'ace-builds/src-noconflict/ace'
 
@@ -7,6 +10,7 @@ import 'ace-builds/src-noconflict/mode-css'
 import 'ace-builds/src-noconflict/mode-sass'
 import 'ace-builds/src-noconflict/mode-less'
 import 'ace-builds/src-noconflict/mode-html'
+import 'ace-builds/src-noconflict/mode-json'
 import 'ace-builds/src-noconflict/mode-javascript'
 import 'ace-builds/src-noconflict/mode-typescript'
 
@@ -15,14 +19,9 @@ import 'ace-builds/src-noconflict/ext-statusbar.js'
 import 'ace-builds/src-noconflict/ext-language_tools.js'
 import 'ace-builds/src-noconflict/ext-code_lens.js'
 
-import 'ace-builds/src-noconflict/theme-monokai'
-import 'ace-builds/src-noconflict/theme-tomorrow_night_eighties'
-import 'ace-builds/src-noconflict/theme-vibrant_ink'
-
 import { debounce } from '../components/js-playground-engine'
 
-
-export abstract class EditorInputWidget extends Widget {
+export abstract class EditorInputWidget extends RedisplayableWidget {
   static contentNode(d) {
     const n = document.createElement('div')
     n.id = d
@@ -35,30 +34,63 @@ export abstract class EditorInputWidget extends Widget {
     super(Object.assign(props, {
       node: EditorInputWidget.contentNode(props.id)}
     ))
+    this.stateInitedListener = this.stateInitedListener.bind(this)
+    this.stateRefreshListener = this.stateRefreshListener.bind(this)
+    this.onEditorChangeListener = this.onEditorChangeListener.bind(this)
     this.initWidget(props)
   }
+
+  stateInitedListener(e:any) {
+    this.stateInited(e)
+  }
+
+  stateRefreshListener (e:any) {
+    this.stateInited(e)
+  }
+
+  onEditorChangeListener(delta:any) {
+    this.editorChanged(delta)
+  }
+
+  onResizeLayout() {
+    if(this.editor) {
+      this.editor.resize()
+    }
+  }
+
+  onAfterAttach() {
+    this.initEditor()
+    document.addEventListener('state_inited', this.stateInitedListener)
+    document.addEventListener('state_refresh', this.stateRefreshListener)
+    document.addEventListener('resize_layout', this.onResizeLayout)
+    this.editor.on('change', this.onEditorChangeListener)
+  }
+
+  oneBeforeDetach() {
+    document.removeEventListener('state_inited', this.stateInitedListener)
+    document.removeEventListener('state_refresh', this.stateRefreshListener)
+    this.editor.on('change', null)
+    this.editor.destroy()
+    const newContentNode = EditorInputWidget.contentNode(this.props.id)
+    this.node.parentElement.appendChild(newContentNode)
+    $(this.node).remove();
+    this.node = newContentNode
+    this.editor = null;
+  }
+
   initWidget(props) {
-    const self = this
     this.setFlag(Widget.Flag.DisallowLayout)
     this.addClass('content')
     this.addClass('editor-input')
     this.title.label = props.label
-    this.title.closable = false
+    this.title.closable = true
     this.title.caption = props.label
-    this.initEditor()
-    document.addEventListener('state_inited', (e:any) => {
-      this.stateInited(e)
-    })
-    document.addEventListener('state_refresh', (e:any) => {
-      this.stateInited(e)
-    })
-    this.editor.on('change', (delta) => {
-      self.editorChanged(delta)
-    })
   }
+
   dispatch (e:any, p:any = null) {
     document.dispatchEvent(p ? new CustomEvent(e, { detail: p }) : new Event(e))
   }
+
   initEditor() {
     ace.config.set('basePath', '/')
     ace.require('ace/ext/themelist')
@@ -76,8 +108,8 @@ export abstract class EditorInputWidget extends Widget {
       enableLiveAutocompletion: true,
       enableCodeLens: true
     })
-
   }
+
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
       this.node.focus()
@@ -86,11 +118,20 @@ export abstract class EditorInputWidget extends Widget {
   static getWidgetTitle() {
     return "Widget"
   }
+  getWidgetTitle() {
+    return EditorInputWidget.getWidgetTitle()
+  }
 }
 
 export class HTMLInputWidget extends EditorInputWidget {
   constructor(props) {
     super(Object.assign(props, { id: 'html-input', label: 'HTML Input'}))
+  }
+  static getWidgetTitle() {
+    return "HTML Input"
+  }
+  getWidgetTitle() {
+    return HTMLInputWidget.getWidgetTitle()
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) { this.node.focus() }
@@ -128,6 +169,12 @@ export class CSSInputWidget extends EditorInputWidget {
     })
     this.index = index
   }
+  static getWidgetTitle() {
+    return "CSS Input"
+  }
+  getWidgetTitle() {
+    return CSSInputWidget.getWidgetTitle()
+  }
   initEditor() {
     super.initEditor()
     this.editor.session.setMode("ace/mode/css");
@@ -158,9 +205,6 @@ export class CSSInputWidget extends EditorInputWidget {
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
-  }
-  static getWidgetTitle() {
-    return "CSS Input"
   }
 }
 
@@ -208,6 +252,9 @@ export class JSInputWidget extends EditorInputWidget {
   static getWidgetTitle() {
     return "Javascript Input"
   }
+  getWidgetTitle() {
+    return JSInputWidget.getWidgetTitle()
+  }
 }
 
 export class JSLibsWidget extends EditorInputWidget {
@@ -239,6 +286,12 @@ export class JSLibsWidget extends EditorInputWidget {
     }
     debounce(debounceEditorChanges, 2000)()
   }
+  static getWidgetTitle() {
+    return "Javascript Libraries"
+  }
+  getWidgetTitle() {
+    return JSLibsWidget.getWidgetTitle()
+  }
 }
 
 export class CSSLibsWidget extends EditorInputWidget {
@@ -269,5 +322,48 @@ export class CSSLibsWidget extends EditorInputWidget {
       this.dispatch('inputs_updated', detail)
     }
     debounce(debounceEditorChanges, 2000)()
+  }
+  static getWidgetTitle() {
+    return "CSS Libraries"
+  }
+  getWidgetTitle() {
+    return CSSLibsWidget.getWidgetTitle()
+  }
+}
+
+export class WorkspaceSettingsWidget extends EditorInputWidget {
+  constructor(props) {
+    super(Object.assign(props, { id: 'workspace-settings', label: 'Workspace Settings'}))
+  }
+  initEditor() {
+    super.initEditor()
+    this.editor.session.setMode("ace/mode/json");
+  }
+  protected onActivateRequest(msg: Message): void {
+    if (this.isAttached) { this.node.focus() }
+  }
+  initWidget(props) {
+    super.initWidget(props)
+    this.title.closable = true
+  }
+  stateInited(state: any1 ) {
+    const v = this.editor.getValue()
+    const nv = JSON.stringify(state.detail.settings,null, 2)
+    if(state.detail && nv !== v) {v
+      this.editor.setValue(nv)
+    }
+  }
+  editorChanged(delta:any) {
+    const debounceEditorChanges = () => {
+      const detail = { settings: this.editor.getValue() }
+      this.dispatch('inputs_updated', detail)
+    }
+    debounce(debounceEditorChanges, 2000)()
+  }
+  static getWidgetTitle() {
+    return "Workspace Settings"
+  }
+  getWidgetTitle() {
+    return WorkspaceSettingsWidget.getWidgetTitle()
   }
 }

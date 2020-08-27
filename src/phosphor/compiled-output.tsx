@@ -1,7 +1,8 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
+import RedisplayableWidget from './widget'
 
-export default class CompiledOutputWidget extends Widget {
+export default class CompiledOutputWidget extends RedisplayableWidget {
   props: {
     id: any,
     widgetCreated?: any,
@@ -59,8 +60,10 @@ export default class CompiledOutputWidget extends Widget {
       this.node.focus()
     }
   }
-
   static getWidgetTitle() {
     return "Compiled Output"
+  }
+  getWidgetTitle() {
+    return CompiledOutputWidget.getWidgetTitle()
   }
 }

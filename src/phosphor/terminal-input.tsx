@@ -1,8 +1,9 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
+import RedisplayableWidget from './widget'
 import TerminalSession from '../term/session'
 
-export default class TerminalInputWidget extends Widget {
+export default class TerminalInputWidget extends RedisplayableWidget {
   session
   static contentNode(d) {
     const n = document.createElement('div')
@@ -27,7 +28,7 @@ export default class TerminalInputWidget extends Widget {
 
     // this.session = new TerminalSession(this.node)
     // this.session.start()
-    
+
   }
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {

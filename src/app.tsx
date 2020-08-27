@@ -47,7 +47,9 @@ export default class JavascriptPlayground extends Component {
     runkitendpointjs,
     compiledPage,
     auth,
-    observablePaths
+    observablePaths,
+    workspaceLoaded,
+    settings
   }
   consoleEl
   updatedEvent
@@ -101,7 +103,11 @@ export default class JavascriptPlayground extends Component {
       compiledPage: '',
       auth: this.getAuthInfo(),
       observablePaths: [
-      ]
+      ],
+      settings: {
+        autoSave: true,
+        theme: 'dark'
+      }
     }
     if(setState) {
       this.setComponentState(stateTree)
@@ -253,7 +259,8 @@ export default class JavascriptPlayground extends Component {
       username: v.username,
       password: v.password
     }})
-    console.log('Welcome', `to the decentralized web. Welcome, new user ${v.username}`)
+    console.log('Welcome', 'to the decentralized web')
+    console.log('Welcome', `new user ${v.username}`)
     this.initObservables(v.username)
   }
 
@@ -263,7 +270,8 @@ export default class JavascriptPlayground extends Component {
       username: v.username,
       password: v.password
     }})
-    console.log('Connected', `to the decentralized web. Welcome, returning user ${v.username}`)
+    console.log('Welcome', 'to the decentralized web')
+    console.log('Welcome', `returning user ${v.username}`)
     this.initObservables(v.username)
   }
 
@@ -281,9 +289,9 @@ export default class JavascriptPlayground extends Component {
     this.setComponentState(this.state)
 
     if(!this._gun.pending) this._gun.pending = {}
-    this._gun.workspaces = this.state.observablePaths[0]
-    this._gun.activeWorkspace = this.state.observablePaths[1]
-    this._gun.announcePath = this.state.observablePaths[5]
+    this._gun.pending.workspaces = this.state.observablePaths[0]
+    this._gun.pending.activeWorkspace = this.state.observablePaths[1]
+    this._gun.pending.announcePath = this.state.observablePaths[5]
 
     if(this.gunObserver) this.gunObserver.observe(this.state.observablePaths)
 
@@ -313,31 +321,36 @@ export default class JavascriptPlayground extends Component {
   initWorkspace() {
     this.loadWorkspace()
   }
-  
+
   loadWorkspace() {
-    if(!this._gun || !this._gun.activeWorkspace) {
-      return //whenReady(this._gun, 'activeWorkspace', () => this.loadWorkspace())
+    var running = false
+    if((!this._gun || !this._gun.activeWorkspace) && !running) {
+      running = true
+      return whenReady(this._gun, 'activeWorkspace', () => { running = false; this.loadWorkspace(); })
+    }
+    if(running) {
+      return
     }
     nav(this._gun, this._gun.activeWorkspace).once((v) => {
-      console.log(`loading active workspace for user ${this.state.auth.username}`)
-      if(v) v = JSON.parse(v)
-      this.setComponentState(v)
-      this.dispatch('state_updated', v)
-      setTimeout(() => this.dispatch('state_refresh', v), 10)
+      if(v) {
+        //console.log(`loading active workspace for user ${this.state.auth.username}`)
+        v = JSON.parse(v)
+        this.setComponentState(v)
+        this.dispatch('state_updated', v)
+        this.dispatch('state_refresh', v)
+        this.state.workspaceLoaded = true
+      }
+      //setTimeout(() => this.dispatch('state_refresh', v), 10)
     })
   }
 
   saveWorkspace(w) {
-    if(!this._gun || !this._gun.activeWorkspace) {
+    if(!this.state.workspaceLoaded || !this._gun || !this._gun.activeWorkspace) {
       return //whenReady(this._gun, 'activeWorkspace', () => this.saveWorkspace(w))
     }
     this.setAuthInfo(this.state.auth)
     nav(this._gun, this._gun.activeWorkspace).put(JSON.stringify(this.state))
-    console.log(`saved active workspace for user ${this.state.auth.username}`)
-  }
-
-  saveWorkspace_(w) {
-
+    //console.log(`saved active workspace for user ${this.state.auth.username}`)
   }
 
   buildWorkspaceState(v:any = null) {

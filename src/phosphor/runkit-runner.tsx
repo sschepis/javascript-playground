@@ -1,7 +1,8 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
+import RedisplayableWidget from './widget'
 
-export default class RunkitRunnerWidget extends Widget {
+export default class RunkitRunnerWidget extends RedisplayableWidget {
   static contentNode(d) {
     const n = document.createElement('div')
     n.id = d
