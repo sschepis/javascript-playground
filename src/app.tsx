@@ -12,6 +12,9 @@ import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-en
 import GunService from './components/gun-service'
 //import MicroModal from './components/micromodal'
 import safeStringify from 'fast-safe-stringify'
+import SettingsManager from './components/settings-manager'
+
+import { themes, themeExists } from './components/themes'
 
 import Embed from 'react-runkit'
 import { createFalse } from 'typescript'
@@ -58,6 +61,7 @@ export default class JavascriptPlayground extends Component {
   gun
   _gun
   workspaceSaver
+  settingsManager
   constructor(props: any) {
     super(props)
     this.buildStateTree(false)
@@ -78,6 +82,16 @@ export default class JavascriptPlayground extends Component {
       onCreate:this.handleCreate
     }
     this.gunObserver = new GunService(gprops)
+    this.initSettingsManager()
+  }
+
+  initSettingsManager() {
+    this.settingsManager = new SettingsManager(this.state)
+    this.settingsManager.when('theme', (newTheme) => {
+      if(newTheme && themes[newTheme]) {
+        this.dispatch('theme_updated', newTheme)
+      }
+    })
   }
 
   buildStateTree(setState) {
@@ -104,7 +118,7 @@ export default class JavascriptPlayground extends Component {
       ],
       settings: {
         autoSave: true,
-        theme: 'dark'
+        theme: 'twilight'
       }
     }
     if(setState) {
@@ -207,7 +221,13 @@ export default class JavascriptPlayground extends Component {
     const debounceRebuild = () => {
       this.rebuildEngine()
     }
-    debounce(debounceRebuild, 100)()
+    // if settings changed
+
+    const debounceSettingsUpdate = () => {
+      this.settingsManager.diff(this.state.settings)
+      this.settingsManager.update(this.state.settings)
+    }
+    debounce(debounceSettingsUpdate, 1000)()
   }
 
   setComponentState(s) {

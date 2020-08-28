@@ -21,6 +21,8 @@ import 'ace-builds/src-noconflict/ext-code_lens.js'
 
 import { debounce } from '../components/js-playground-engine'
 
+import { themes } from '../components/themes'
+
 export abstract class EditorInputWidget extends RedisplayableWidget {
   static contentNode(d) {
     const n = document.createElement('div')
@@ -37,7 +39,9 @@ export abstract class EditorInputWidget extends RedisplayableWidget {
     this.stateInitedListener = this.stateInitedListener.bind(this)
     this.stateRefreshListener = this.stateRefreshListener.bind(this)
     this.onEditorChangeListener = this.onEditorChangeListener.bind(this)
+    this.onThemeUpdated = this.onThemeUpdated.bind(this)
     this.initWidget(props)
+    this.initEditor()
   }
 
   stateInitedListener(e:any) {
@@ -58,11 +62,21 @@ export abstract class EditorInputWidget extends RedisplayableWidget {
     }
   }
 
+  onThemeUpdated(v) {
+    if(!this.editor || !this.isAttached || !v) {
+      return
+    }
+    try {
+      this.editor.setTheme(`ace/theme/${v.detail}`);
+      console.log(`ace/theme/${v.detail}`)
+    } catch (e) {}
+  }
+
   onAfterAttach() {
-    this.initEditor()
     document.addEventListener('state_inited', this.stateInitedListener)
     document.addEventListener('state_refresh', this.stateRefreshListener)
     document.addEventListener('resize_layout', this.onResizeLayout)
+    document.addEventListener('theme_updated', this.onThemeUpdated)
     this.editor.on('change', this.onEditorChangeListener)
   }
 
@@ -99,9 +113,8 @@ export abstract class EditorInputWidget extends RedisplayableWidget {
     ace.require('ace/ext/code_lens')
     ace.require('ace/ext/status_bar')
     ace.require('ace/ext/settings_menu')
-    ace.require('ace/theme/tomorrow_night_eighties')
+    Object.keys(themes).forEach(t => ace.require(`ace/theme/${t}`))
     this.editor = ace.edit(this.node);
-    this.editor.setTheme("ace/theme/tomorrow_night_eighties");
     this.editor.setOptions({
       enableBasicAutocompletion: true,
       enableSnippets: true,
@@ -273,6 +286,9 @@ export class JSLibsWidget extends EditorInputWidget {
     this.title.closable = true
   }
   stateInited(state: any) {
+    if(!state.detail) {
+      return
+    }
     const v = this.editor.getValue()
     const nv = state.detail.jslibs.join('\n')
     if(state.detail && nv !== v) {
@@ -310,6 +326,9 @@ export class CSSLibsWidget extends EditorInputWidget {
     this.title.closable = true
   }
   stateInited(state: any) {
+    if(!state.detail) {
+      return
+    }
     const v = this.editor.getValue()
     const nv = state.detail.csslibs.join('\n')
     if(state.detail && nv !== v) {v
@@ -347,6 +366,9 @@ export class WorkspaceSettingsWidget extends EditorInputWidget {
     this.title.closable = true
   }
   stateInited(state: any ) {
+    if(!state.detail) {
+      return
+    }
     const v = this.editor.getValue()
     const nv = JSON.stringify(state.detail.settings,null, 2)
     if(state.detail && nv !== v) {v
@@ -355,8 +377,12 @@ export class WorkspaceSettingsWidget extends EditorInputWidget {
   }
   editorChanged(delta:any) {
     const debounceEditorChanges = () => {
-      const detail = { settings: this.editor.getValue() }
-      this.dispatch('inputs_updated', detail)
+      try {
+        const detail = { settings: JSON.parse(this.editor.getValue()) }
+        this.dispatch('inputs_updated', detail)
+      } catch(e) {
+
+      }
     }
     debounce(debounceEditorChanges, 2000)()
   }
