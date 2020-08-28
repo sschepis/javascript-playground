@@ -1,0 +1,12 @@
+{
+  "sourceMaps": true,
+  "presets": [
+    "@babel/preset-react"
+  ],
+  "plugins": [
+    "syntax-dynamic-import",
+    "@babel/plugin-transform-runtime",
+    [ "@babel/plugin-proposal-class-properties", { "loose": false } ],
+    "transform-async-to-generator"
+  ]
+}

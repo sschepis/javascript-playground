@@ -1,27 +1,20 @@
 <html>
 
 <head>
-    <link
-      rel="stylesheet"
-      href="//maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-      integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
-      crossorigin="anonymous" />
+  <title>Javascript Playground</title>
+  <script crossorigin src="//unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="//unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+  <script src='//embed.runkit.com'></script>
+  <script src="https://kit.fontawesome.com/62c4aae6b1.js" crossorigin="anonymous"></script>
 
-      <script src="//unpkg.com/react/umd/react.production.min.js" crossorigin></script>
-
-      <script
-        src="//unpkg.com/react-dom/umd/react-dom.production.min.js"
-        crossorigin></script>
-
-      <script
-        src="//unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js"
-        crossorigin></script>
+  <link rel="stylesheet" href="node_modules/xterm/css/xterm.css" />
+  <script src="node_modules/xterm/lib/xterm.js"></script>
 </head>
 
 <body>
-    <div id="app" style='width:100%;height:100%'></div>
+    <div id="app" style="width:0;height:0"></div>
 </body>
 
-<script src="src/layouts/index.tsx"></script>
+<script src="src/app.tsx"></script>
 
 </html>

@@ -1,0 +1,30 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2014-2017, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+
+
+.p-Menu-item[data-type='separator'] > div::after {
+  content: '';
+  display: block;
+  position: relative;
+}
+
+
+.p-Menu-itemIcon::before,
+.p-Menu-itemSubmenuIcon::before {
+  font-family: FontAwesome;
+}
+
+
+.p-Menu-item.p-mod-toggled > .p-Menu-itemIcon::before {
+  content: '\f00c';
+}
+
+
+.p-Menu-item[data-type='submenu'] > .p-Menu-itemSubmenuIcon::before {
+  content: '\f0da';
+}

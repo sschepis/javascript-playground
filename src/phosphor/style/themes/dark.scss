@@ -1,0 +1,247 @@
+
+$color16:#717171;
+$color15:#6d6d6d;
+$color14:#696969;
+$color13:#656565;
+$color12:#606060;
+$color11:#5c5c5c;
+$color10:#585858;
+$color9:#545454;
+$color8:#505050;
+$color7:#4c4c4c;
+$color6:#484848;
+$color5:#444444;
+$color4:#3f3f3f;
+$color3:#3b3b3b;
+$color2:#373737;
+$color1:#333333;
+
+.content {
+  border: 1px solid #333333;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+#palette {
+  border-right: 1px solid $color9;
+}
+
+.p-CommandPalette-itemLabel {
+  color: #c0c0c0;
+}
+
+.p-CommandPalette-itemCaption {
+  color: #aaaaaa;
+}
+
+.p-CommandPalette-header {
+  color: #d0d0d0;
+  background: $color6;
+}
+
+.p-Widget, .p-DockPanel, .p-BoxPanel-child {
+background: $color6;
+}
+
+.p-CommandPalette {
+  background: $color3;
+}
+
+.p-CommandPalette-wrapper {
+  background: $color1;
+  border: 1px solid $color7;
+}
+
+
+.p-CommandPalette-header > mark {
+  background-color: transparent;
+}
+
+.p-CommandPalette-item {
+  color: $color16;
+}
+
+.p-CommandPalette-emptyMessage {
+  color: $color16;
+}
+
+.p-CommandPalette-item.p-mod-disabled {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.p-CommandPalette-item.p-mod-active {
+  background: #7FDBFF;
+}
+
+.p-CommandPalette-item:hover:not(.p-mod-active):not(.p-mod-disabled) {
+  background: $color5;
+}
+
+.p-CommandPalette-itemLabel > mark {
+  background-color: transparent;
+}
+
+.p-CommandPalette-item.p-mod-disabled mark {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.p-DataGrid {
+  border: 1px solid $color14;
+}
+
+.p-DataGrid-scrollCorner {
+  background-color: $color4;
+}
+
+.p-DataGrid-scrollCorner::after {
+  background-color: $color14;
+}
+
+.p-DockPanel-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px dashed black;
+}
+
+
+.p-Menu {
+  padding: 3px 0px;
+  background: $color1;
+  color: rgba(0, 0, 0, 0.87);
+  border: 1px solid $color11;
+  font: 12px Helvetica, Arial, sans-serif;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.p-Menu-item.p-mod-active {
+  background: $color5;
+}
+
+.p-Menu-item.p-mod-disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.p-Menu-itemIcon {
+  width: 21px;
+  padding: 4px 2px;
+}
+
+.p-Menu-itemLabel {
+  padding: 4px 35px 4px 2px;
+}
+
+.p-Menu-itemMnemonic {
+  text-decoration: underline;
+}
+
+.p-Menu-itemShortcut {
+  padding: 4px 0px;
+}
+
+.p-Menu-itemSubmenuIcon {
+  width: 16px;
+  padding: 4px 0px;
+}
+
+.p-Menu-item[data-type='separator'] > div {
+  padding: 0;
+  height: 9px;
+}
+
+.p-Menu-item[data-type='separator'] > div::after {
+  top: 4px;
+  border-top: 1px solid $color8;
+}
+
+
+.p-MenuBar {
+  padding-left: 5px;
+  background: $color2;
+  color: rgba(255, 255, 255, 0.87);
+  border-bottom: 1px solid $color8;
+  font: 13px Helvetica, Arial, sans-serif;
+}
+
+.p-MenuBar-item.p-mod-active {
+  background: $color5;
+}
+
+.p-MenuBar.p-mod-active .p-MenuBar-item.p-mod-active {
+  z-index: 99999;
+  background: $color1;
+  border-left: 1px solid $color11;
+  border-right: 1px solid $color11;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+.p-ScrollBar[data-orientation='horizontal'] {
+  border-top: 1px solid $color14;
+}
+
+.p-ScrollBar[data-orientation='vertical'] {
+  border-left: 1px solid $color14;
+}
+
+.p-ScrollBar-button {
+  background-color: $color4;
+}
+
+.p-ScrollBar-button:hover {
+  background-color: $color9;
+}
+
+.p-ScrollBar-button.p-mod-active {
+  background-color: $color10;
+}
+
+.p-ScrollBar-track {
+  background: $color4;
+}
+
+.p-ScrollBar-thumb {
+  background: $color10;
+}
+
+.p-ScrollBar-thumb:hover {
+  background: $color13;
+}
+
+.p-ScrollBar-thumb.p-mod-active {
+  background: $color14;
+}
+
+
+.p-ScrollBar[data-orientation='horizontal'] .p-ScrollBar-thumb {
+  border-left: 1px solid $color14;
+  border-right: 1px solid $color14;
+}
+
+.p-ScrollBar[data-orientation='vertical'] .p-ScrollBar-thumb {
+  border-top: 1px solid $color14;
+  border-bottom: 1px solid $color14;
+}
+
+.p-TabBar-content {
+  border-bottom: 1px solid $color11;
+}
+
+.p-TabBar-tab {
+  background: $color5;
+  border: 1px solid $color11;
+}
+
+.p-TabBar-tab.p-mod-current {
+  background: $color8;
+}
+
+.p-TabBar-tab:hover:not(.p-mod-current) {
+  background: $color1;
+}
+
+.p-TabBar-tab.p-mod-drag-image {
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+#compiled-content-iframe {
+  border: 1px inset #a0a0a0
+}

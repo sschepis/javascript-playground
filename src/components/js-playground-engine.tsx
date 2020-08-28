@@ -1,19 +1,20 @@
-import React, { Component } from 'react'
+
+import safeStringify from 'fast-safe-stringify'
 
 const localStore = window.localStorage
 
-const ser = (k,v = null) => {
-  if (!v) {
+export const ser = (k,v) => {
+  if (v === null || v === undefined) {
     const v = localStore.getItem(k)
     return JSON.parse(v)
   }
-  window.localStorage.setItem(k, JSON.stringify(v))
+  window.localStorage.setItem(k, safeStringify.stableStringify(v))
 }
 
 const debounceTimes = {}
 const debounceTimerRefs = {}
 
-function debounce(f, t) {
+export function debounce(f, t) {
   const fName = f.name ? f.name : 'anonymous'
   function funcOut() {
       const timeNow = Date.now()
@@ -33,34 +34,28 @@ function debounce(f, t) {
   return funcOut
 }
 
-export default class JSPlaygroundEngine extends Component {
+export default class JSPlaygroundEngine {
   state : {
     html : string,
-    css : string,
-    js : string,
+    css : Array<string>,
+    js : Array<string>,
     jslibs : string | Array<string>,
     csslibs : string | Array<string>,
     compiledPage : string
   }
   props: {
     onRefresh? : any,
-    html : string,
-    css : string,
-    js : string,
-    csslibs : string | Array<string>,
-    jslibs : string | Array<string>,
+    html? : string,
+    css? : Array<string>,
+    js? : Array<string>,
+    csslibs? : string | Array<string>,
+    jslibs? : string | Array<string>,
     refreshOnUpdate? : boolean
   }
+
   constructor (props) {
-    super(props)
-    this.state = {
-      html : this.props.html,
-      css : this.props.css,
-      js : this.props.js,
-      jslibs: this.props.jslibs,
-      csslibs: this.props.csslibs,
-      compiledPage: ''
-    }
+    this.props = Object.assign({}, props)
+    this.state = Object.assign({}, props)
   }
 
   dispatch (e, p = null) {
@@ -68,26 +63,22 @@ export default class JSPlaygroundEngine extends Component {
   }
 
   setState(v) {
-    this.state = Object.assign(this.state, v);
-  }
-
-  componentDidMount() {
-    const s = ser('jsplayground')
-    if (s) {
-      this.setState(s)
-    }
-    this.refresh()
+    this.state = Object.assign(this.state || {}, v);
   }
 
   compilePage() {
-    const textToArray = (t) => {
-      if(!t.split) { return [] }
+    const toArray = (t) => {
+      if(Array.isArray(t)) { return t }
+      if(!t || !t.split) { return [] }
       return t.split('\n')
-    } 
+    }
     return `<html>
     <head>
-    ${textToArray(this.state.csslibs).map(el => {
-      if (!el || el.startsWith('#')) { return }
+    <script type="text/javascript">
+    console = window.console = window.parent.console
+    </script>
+    ${toArray(this.state.csslibs).map(el => {
+      if (!el || el.startsWith('#') || el === '') { return }
       return `<link rel="stylesheet" href="${el}" />`
     }).join('\n')}
     <style>
@@ -97,19 +88,19 @@ export default class JSPlaygroundEngine extends Component {
       border: 0;
       padding: 0;
     }
-    ${this.state.css}
+    ${Array.isArray(this.state.css) ? this.state.css.join('\n'):this.state.css }
     </style>
     <script type="text/javascript">
-      console = window.console = window.parent.console
-      const loadJs = (f) => {
-        const s = document.createElement('script')
-        s.setAttribute('type','text/javascript')
-        s.setAttribute('src', f)
-        document.body.appendChild(s)
+      function require(url, callback) {
+        var e = document.createElement("script");
+        e.src = url;
+        e.type="text/javascript";
+        e.addEventListener('load', callback);
+        document.getElementsByTagName("head")[0].appendChild(e);
       }
     </script>
-    ${textToArray(this.state.jslibs).map(el => {
-      if (!el || el.startsWith('#')) { return }
+    ${toArray(this.state.jslibs).map(el => {
+      if (!el || el.startsWith('#') || el === '') { return }
       return `<script type="text/javascript" src="${el}"></script>`
     }).join('\n')}
     </head>
@@ -117,38 +108,23 @@ export default class JSPlaygroundEngine extends Component {
     ${this.state.html}
     </body>
     <script type="text/javascript">
-    ${this.state.js}
+    ${Array.isArray(this.state.js) ? this.state.js.join('\n'):this.state.js}
     </script>
     </html>`
   }
 
-  saveAndRefresh() {
-    const self = this
-    const o = {
-      html : this.state.html,
-      css : this.state.css,
-      js : this.state.js,
-      jslibs: this.state.jslibs,
-      csslibs: this.state.csslibs,
-      compiledPage: this.compilePage()
-    }
-    ser('jsplayground', o)
-    this.setState({ compiledPage: o.compiledPage })
-    self.refresh()
-  }
-
   refresh() {
-    this.dispatch('sketch_refresh')
+    this.setState({
+      html : this.props.html,
+      css : this.props.css,
+      js : this.props.js,
+      jslibs: this.props.jslibs,
+      csslibs: this.props.csslibs,
+      compiledPage: this.compilePage()
+    })
     if(this.props.onRefresh) {
       this.props.onRefresh(this.state)
     }
   }
-
-  handleChange (v) {
-    this.setState(v)
-    debounce(()=>this.saveAndRefresh(), 2000)()
-  }
-
-  render = () =>(<div style={{display:'none'}} />)
 
 }
