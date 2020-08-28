@@ -78,8 +78,6 @@ export default class JavascriptPlayground extends Component {
       onCreate:this.handleCreate
     }
     this.gunObserver = new GunService(gprops)
-
-    //this.workspaceSaver = setInterval(() => this.saveWorkspaceActual(this.buildWorkspaceState()), 30000)
   }
 
   buildStateTree(setState) {
@@ -333,14 +331,12 @@ export default class JavascriptPlayground extends Component {
     }
     nav(this._gun, this._gun.activeWorkspace).once((v) => {
       if(v) {
-        //console.log(`loading active workspace for user ${this.state.auth.username}`)
         v = JSON.parse(v)
         this.setComponentState(v)
         this.dispatch('state_updated', v)
-        this.dispatch('state_refresh', v)
-        this.state.workspaceLoaded = true
       }
-      //setTimeout(() => this.dispatch('state_refresh', v), 10)
+      this.dispatch('state_refresh', v)
+      this.state.workspaceLoaded = true
     })
   }
 

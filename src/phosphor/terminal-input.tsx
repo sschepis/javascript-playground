@@ -1,7 +1,7 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
 import RedisplayableWidget from './widget'
-import TerminalSession from '../term/session'
+import { startTerminalShell, stopTerminalShell } from '../components/terminal/terminal-shell'
 
 export default class TerminalInputWidget extends RedisplayableWidget {
   session
@@ -25,11 +25,16 @@ export default class TerminalInputWidget extends RedisplayableWidget {
     this.title.label = 'Terminal Input'
     this.title.closable = false
     this.title.caption = 'Terminal Input'
-
-    // this.session = new TerminalSession(this.node)
-    // this.session.start()
-
   }
+
+  onAfterAttach() {
+    startTerminalShell(this.node)
+  }
+
+  oneBeforeDetach() {
+    //stopTerminalShell(this.node)
+  }
+
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
       this.node.focus()

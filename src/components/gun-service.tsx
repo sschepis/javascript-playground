@@ -25,39 +25,30 @@ export default class GunService {
     }, props)
     this.state.user = this.state.gun.user()
     this.state = Object.assign(this.state, props)
-    
     if(this.state.auth) {
       const a = this.state.auth
       if(a.create) {
         const username = a.username || randomstring.generate()
         const password = a.password || randomstring.generate()
-        this.state.auth = Object.assign(this.state.auth, {
+        this.state.auth = Object.assign({
           username, password
-        })
+        }, this.state.auth)
         this.state.user.create(username, password)
-        if(this.state.onCreate) {
-          this.state.onCreate(this.userGun, this.state.auth, false)
-        }
       } else {
         const username = a.username
-        const password = a.password 
-        this.state.auth = Object.assign(this.state.auth, {})
+        const password = a.password
+        this.state.auth = Object.assign({}, this.state.auth)
         if(!username || !password) {
           throw new Error('Username and password must be provided!')
         }
         this.state.user.auth(username, password)
-        if(this.state.onAuth) {
-          this.state.onAuth(this.userGun, this.state.auth, false)
-        }
       }
-      this.state.gun.on('create', () => {
-        if(this.state.onCreate) {
-          this.state.onCreate(this.state.user, this.state.auth, true)
-        }
-      })
       this.state.gun.on('auth',() => {
-        if(this.state.onAuth) {
-          this.state.onAuth(this.state.user, this.state.auth, true)
+        if(this.state.onCreate && this.state.auth.create) {
+          this.state.onCreate(this.state.user, this.state.auth)
+        }
+        else if(this.state.onAuth) {
+          this.state.onAuth(this.state.user, this.state.auth)
         }
       })
       this.observe(this.state.observablePaths)

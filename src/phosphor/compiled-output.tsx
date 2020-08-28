@@ -34,9 +34,12 @@ export default class CompiledOutputWidget extends RedisplayableWidget {
       this.iframe.parentNode.removeChild(this.iframe);
     }
     this.iframe = document.createElement('iframe')
+    this.iframe.id = 'compiled-content-iframe'
     this.iframe.height = '100%'
     this.iframe.width = '100%'
-    this.iframe.style.border = '1px solid #000'
+    this.iframe.style.border = '1px inset #a0a0a0'
+    this.iframe.style.padding = '0'
+    this.iframe.style.background = '#a0a0a0'
     this.iframe.srcdoc = content.compiledPage
     this.iframe.addEventListener("log", function (value) {
       console.log.apply(null, value);

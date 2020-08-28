@@ -346,7 +346,7 @@ export class WorkspaceSettingsWidget extends EditorInputWidget {
     super.initWidget(props)
     this.title.closable = true
   }
-  stateInited(state: any1 ) {
+  stateInited(state: any ) {
     const v = this.editor.getValue()
     const nv = JSON.stringify(state.detail.settings,null, 2)
     if(state.detail && nv !== v) {v
