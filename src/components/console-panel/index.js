@@ -18,7 +18,7 @@ export default class ConsolePanel extends Component {
   render () {
     return (
       <div className='console-panel' id='console-panel' style={this.state.cssStyles}>
-        <Console logs={this.props.logs} style={{ border: '1px solid #eee' }} variant='dark' />
+        <Console logs={this.props.logs} variant='dark' />
       </div>
     )
   }

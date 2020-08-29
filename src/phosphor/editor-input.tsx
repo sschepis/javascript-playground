@@ -68,7 +68,6 @@ export abstract class EditorInputWidget extends RedisplayableWidget {
     }
     try {
       this.editor.setTheme(`ace/theme/${v.detail}`);
-      console.log(`ace/theme/${v.detail}`)
     } catch (e) {}
   }
 
@@ -107,15 +106,24 @@ export abstract class EditorInputWidget extends RedisplayableWidget {
 
   initEditor() {
     ace.config.set('basePath', '/')
+    ace.require('ace/ext/beautify')
+    ace.require('ace/ext/error_marker')
+    ace.require('ace/ext/language_tools')
+    ace.require('ace/ext/modelist')
+    ace.require('ace/ext/options')
+    ace.require('ace/ext/prompt')
+    ace.require('ace/ext/searchbox')
+    ace.require('ace/ext/settings_menu')
+    ace.require('ace/ext/code_lens')
     ace.require('ace/ext/themelist')
     ace.require('ace/ext/options')
-    ace.require('ace/ext/language_tools')
-    ace.require('ace/ext/code_lens')
+    ace.require('ace/ext/options')
     ace.require('ace/ext/status_bar')
-    ace.require('ace/ext/settings_menu')
+
     Object.keys(themes).forEach(t => ace.require(`ace/theme/${t}`))
     this.editor = ace.edit(this.node);
     this.editor.setOptions({
+      enableAutoIndent: true,
       enableBasicAutocompletion: true,
       enableSnippets: true,
       enableLiveAutocompletion: true,

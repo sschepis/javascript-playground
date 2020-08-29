@@ -1,30 +1,59 @@
-.p-CommandPalette {
-  background: #F5F5F5;
+
+$color16:#6869b6;
+$color8:#4940a7;
+$color4:#2f3061;
+
+.content {
+  border: 1px solid #333333;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 
-.p-CommandPalette-wrapper {
-  background: white;
-  border: 1px solid #E0E0E0;
+#palette {
+  border-right: 1px solid $color16;
+}
+
+.p-CommandPalette-itemLabel {
+  color: #c0c0c0;
+}
+
+.p-CommandPalette-itemCaption {
+  color: #aaaaaa;
 }
 
 .p-CommandPalette-header {
-  color: #757575;
-  background: #E1E1E1;
+  color: #d0d0d0;
+  background: $color8;
 }
+
+.p-DockPanel, .p-BoxPanel-child {
+  background: $color8;
+}
+
+.p-CommandPalette {
+  background: $color4;
+}
+
+.p-CommandPalette-wrapper {
+  background: $color4;
+  border: 1px solid $color8;
+}
+
+
 .p-CommandPalette-header > mark {
   background-color: transparent;
 }
 
 .p-CommandPalette-item {
-  color: #757575;
+  color: $color16;
 }
 
 .p-CommandPalette-emptyMessage {
-  color: #757575;
+  color: $color16;
 }
 
 .p-CommandPalette-item.p-mod-disabled {
-  color: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.15);
 }
 
 .p-CommandPalette-item.p-mod-active {
@@ -32,7 +61,7 @@
 }
 
 .p-CommandPalette-item:hover:not(.p-mod-active):not(.p-mod-disabled) {
-  background: #E5E5E5;
+  background: $color8;
 }
 
 .p-CommandPalette-itemLabel > mark {
@@ -43,20 +72,16 @@
   color: rgba(0, 0, 0, 0.4);
 }
 
-.p-CommandPalette-itemCaption {
-  color: #9E9E9E;
-}
-
 .p-DataGrid {
-  border: 1px solid #A0A0A0;
+  border: 1px solid $color16;
 }
 
 .p-DataGrid-scrollCorner {
-  background-color: #F0F0F0;
+  background-color: $color4;
 }
 
 .p-DataGrid-scrollCorner::after {
-  background-color: #A0A0A0;
+  background-color: $color16;
 }
 
 .p-DockPanel-overlay {
@@ -67,15 +92,15 @@
 
 .p-Menu {
   padding: 3px 0px;
-  background: white;
+  background: $color4;
   color: rgba(0, 0, 0, 0.87);
-  border: 1px solid #C0C0C0;
+  border: 1px solid $color16;
   font: 12px Helvetica, Arial, sans-serif;
   box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
 }
 
 .p-Menu-item.p-mod-active {
-  background: #E5E5E5;
+  background: $color8;
 }
 
 .p-Menu-item.p-mod-disabled {
@@ -111,95 +136,100 @@
 
 .p-Menu-item[data-type='separator'] > div::after {
   top: 4px;
-  border-top: 1px solid #DDDDDD;
+  border-top: 1px solid $color8;
 }
 
 
 .p-MenuBar {
   padding-left: 5px;
-  background: #FAFAFA;
-  color: rgba(0, 0, 0, 0.87);
-  border-bottom: 1px solid #DDDDDD;
+  background: $color4;
+  color: rgba(255, 255, 255, 0.87);
+  border-bottom: 1px solid $color8;
   font: 13px Helvetica, Arial, sans-serif;
 }
 
 .p-MenuBar-item.p-mod-active {
-  background: #E5E5E5;
+  background: $color8;
 }
 
 .p-MenuBar.p-mod-active .p-MenuBar-item.p-mod-active {
-  z-index: 10001;
-  background: white;
-  border-left: 1px solid #C0C0C0;
-  border-right: 1px solid #C0C0C0;
+  z-index: 99999;
+  background: $color4;
+  border-left: 1px solid $color16;
+  border-right: 1px solid $color16;
   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
 }
 
 
 .p-ScrollBar[data-orientation='horizontal'] {
-  border-top: 1px solid #A0A0A0;
+  border-top: 1px solid $color16;
 }
 
 .p-ScrollBar[data-orientation='vertical'] {
-  border-left: 1px solid #A0A0A0;
+  border-left: 1px solid $color16;
 }
 
 .p-ScrollBar-button {
-  background-color: #F0F0F0;
+  background-color: $color4;
 }
 
 .p-ScrollBar-button:hover {
-  background-color: #DADADA;
+  background-color: $color16;
 }
 
 .p-ScrollBar-button.p-mod-active {
-  background-color: #CDCDCD;
+  background-color: $color16;
 }
 
 .p-ScrollBar-track {
-  background: #F0F0F0;
+  background: $color4;
 }
 
 .p-ScrollBar-thumb {
-  background: #CDCDCD;
+  background: $color16;
 }
 
 .p-ScrollBar-thumb:hover {
-  background: #BABABA;
+  background: $color16;
 }
 
 .p-ScrollBar-thumb.p-mod-active {
-  background: #A0A0A0;
+  background: $color16;
 }
 
 
 .p-ScrollBar[data-orientation='horizontal'] .p-ScrollBar-thumb {
-  border-left: 1px solid #A0A0A0;
-  border-right: 1px solid #A0A0A0;
+  border-left: 1px solid $color16;
+  border-right: 1px solid $color16;
 }
 
 .p-ScrollBar[data-orientation='vertical'] .p-ScrollBar-thumb {
-  border-top: 1px solid #A0A0A0;
-  border-bottom: 1px solid #A0A0A0;
+  border-top: 1px solid $color16;
+  border-bottom: 1px solid $color16;
 }
 
 .p-TabBar-content {
-  border-bottom: 1px solid #C0C0C0;
+  border-bottom: 1px solid $color16;
 }
 
 .p-TabBar-tab {
-  background: #E5E5E5;
-  border: 1px solid #C0C0C0;
+  background: $color8;
+  border: 1px solid $color16;
 }
 
 .p-TabBar-tab.p-mod-current {
-  background: white;
+  background: $color8;
 }
 
 .p-TabBar-tab:hover:not(.p-mod-current) {
-  background: #F0F0F0;
+  background: $color4;
 }
 
 .p-TabBar-tab.p-mod-drag-image {
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
+
+#compiled-content-iframe {
+  border: 1px inset #a0a0a0
+}
+

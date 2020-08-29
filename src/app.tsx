@@ -1,6 +1,7 @@
 
 import React, { h, Component } from 'react'
 import ReactDOM from 'react-dom'
+import swal from 'sweetalert'
 
 import 'regenerator-runtime/runtime'
 import ConsolePanel from './components/console-panel'
@@ -13,7 +14,7 @@ import GunService from './components/gun-service'
 //import MicroModal from './components/micromodal'
 import safeStringify from 'fast-safe-stringify'
 import SettingsManager from './components/settings-manager'
-
+import  { getWorkspaceNameFromUser } from './components/alerts'
 import { themes, themeExists } from './components/themes'
 
 import Embed from 'react-runkit'
@@ -182,10 +183,21 @@ export default class JavascriptPlayground extends Component {
   }
 
   newWorkspace() {
-    this.buildStateTree(true)
-    this.dispatch('state_inited', this.state)
-    this.dispatch('refresh_view', this.state)
+    swal({
+      text: 'Enter workspace name".',
+      content: "input",
+      button: {
+        text: "Okay",
+        closeModal: true,
+      },
+    }).then((name) => {
+      this.buildStateTree(true)
+      this.state.name = name
+      this.dispatch('state_inited', this.state)
+      this.dispatch('refresh_view', this.state)
+    })
   }
+
 
   installLogger() {
     // Disable code-sandbox console
