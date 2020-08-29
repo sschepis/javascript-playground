@@ -1,9 +1,9 @@
 import { Widget } from '@phosphor/widgets'
 import { Message } from '@phosphor/messaging'
 import RedisplayableWidget from './widget'
-import { startTerminalShell, stopTerminalShell } from '../components/terminal/terminal-shell'
 
 export default class TerminalInputWidget extends RedisplayableWidget {
+  terminal
   session
   static contentNode(d) {
     const n = document.createElement('div')
@@ -28,7 +28,7 @@ export default class TerminalInputWidget extends RedisplayableWidget {
   }
 
   onAfterAttach() {
-    startTerminalShell(this.node)
+    //startTerminalShell(this.node)
   }
 
   oneBeforeDetach() {

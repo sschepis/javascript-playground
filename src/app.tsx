@@ -1,6 +1,7 @@
 
 import React, { h, Component } from 'react'
 import ReactDOM from 'react-dom'
+import swal from 'sweetalert'
 
 import 'regenerator-runtime/runtime'
 import ConsolePanel from './components/console-panel'
@@ -12,6 +13,9 @@ import JSPlaygroundEngine, { ser, debounce } from './components/js-playground-en
 import GunService from './components/gun-service'
 //import MicroModal from './components/micromodal'
 import safeStringify from 'fast-safe-stringify'
+import SettingsManager from './components/settings-manager'
+import  { getWorkspaceNameFromUser } from './components/alerts'
+import { themes, themeExists } from './components/themes'
 
 import Embed from 'react-runkit'
 import { createFalse } from 'typescript'
@@ -58,6 +62,7 @@ export default class JavascriptPlayground extends Component {
   gun
   _gun
   workspaceSaver
+  settingsManager
   constructor(props: any) {
     super(props)
     this.buildStateTree(false)
@@ -78,6 +83,16 @@ export default class JavascriptPlayground extends Component {
       onCreate:this.handleCreate
     }
     this.gunObserver = new GunService(gprops)
+    this.initSettingsManager()
+  }
+
+  initSettingsManager() {
+    this.settingsManager = new SettingsManager(this.state)
+    this.settingsManager.when('theme', (newTheme) => {
+      if(newTheme && themes[newTheme]) {
+        this.dispatch('theme_updated', newTheme)
+      }
+    })
   }
 
   buildStateTree(setState) {
@@ -104,7 +119,7 @@ export default class JavascriptPlayground extends Component {
       ],
       settings: {
         autoSave: true,
-        theme: 'dark'
+        theme: 'twilight'
       }
     }
     if(setState) {
@@ -168,10 +183,21 @@ export default class JavascriptPlayground extends Component {
   }
 
   newWorkspace() {
-    this.buildStateTree(true)
-    this.dispatch('state_inited', this.state)
-    this.dispatch('refresh_view', this.state)
+    swal({
+      text: 'Enter workspace name".',
+      content: "input",
+      button: {
+        text: "Okay",
+        closeModal: true,
+      },
+    }).then((name) => {
+      this.buildStateTree(true)
+      this.state.name = name
+      this.dispatch('state_inited', this.state)
+      this.dispatch('refresh_view', this.state)
+    })
   }
+
 
   installLogger() {
     // Disable code-sandbox console
@@ -207,7 +233,13 @@ export default class JavascriptPlayground extends Component {
     const debounceRebuild = () => {
       this.rebuildEngine()
     }
-    debounce(debounceRebuild, 100)()
+    // if settings changed
+
+    const debounceSettingsUpdate = () => {
+      this.settingsManager.diff(this.state.settings)
+      this.settingsManager.update(this.state.settings)
+    }
+    debounce(debounceSettingsUpdate, 1000)()
   }
 
   setComponentState(s) {

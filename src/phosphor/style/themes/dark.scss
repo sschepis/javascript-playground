@@ -1,29 +1,17 @@
 
 $color16:#717171;
-$color15:#6d6d6d;
-$color14:#696969;
-$color13:#656565;
-$color12:#606060;
-$color11:#5c5c5c;
-$color10:#585858;
-$color9:#545454;
 $color8:#505050;
-$color7:#4c4c4c;
-$color6:#484848;
-$color5:#444444;
 $color4:#3f3f3f;
-$color3:#3b3b3b;
-$color2:#373737;
-$color1:#333333;
 
 .content {
+
   border: 1px solid #333333;
   box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
 
 #palette {
-  border-right: 1px solid $color9;
+  border-right: 1px solid $color16;
 }
 
 .p-CommandPalette-itemLabel {
@@ -36,20 +24,20 @@ $color1:#333333;
 
 .p-CommandPalette-header {
   color: #d0d0d0;
-  background: $color6;
+  background: $color8;
 }
 
-.p-Widget, .p-DockPanel, .p-BoxPanel-child {
-background: $color6;
+.p-DockPanel, .p-BoxPanel-child {
+  background: $color8;
 }
 
 .p-CommandPalette {
-  background: $color3;
+  background: $color4;
 }
 
 .p-CommandPalette-wrapper {
-  background: $color1;
-  border: 1px solid $color7;
+  background: $color4;
+  border: 1px solid $color8;
 }
 
 
@@ -74,7 +62,7 @@ background: $color6;
 }
 
 .p-CommandPalette-item:hover:not(.p-mod-active):not(.p-mod-disabled) {
-  background: $color5;
+  background: $color8;
 }
 
 .p-CommandPalette-itemLabel > mark {
@@ -86,7 +74,7 @@ background: $color6;
 }
 
 .p-DataGrid {
-  border: 1px solid $color14;
+  border: 1px solid $color16;
 }
 
 .p-DataGrid-scrollCorner {
@@ -94,26 +82,26 @@ background: $color6;
 }
 
 .p-DataGrid-scrollCorner::after {
-  background-color: $color14;
+  background-color: $color16;
 }
 
 .p-DockPanel-overlay {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(255, 255, 255, 0.6);
   border: 1px dashed black;
 }
 
 
 .p-Menu {
   padding: 3px 0px;
-  background: $color1;
+  background: $color4;
   color: rgba(0, 0, 0, 0.87);
-  border: 1px solid $color11;
+  border: 1px solid $color16;
   font: 12px Helvetica, Arial, sans-serif;
   box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
 }
 
 .p-Menu-item.p-mod-active {
-  background: $color5;
+  background: $color8;
 }
 
 .p-Menu-item.p-mod-disabled {
@@ -155,31 +143,31 @@ background: $color6;
 
 .p-MenuBar {
   padding-left: 5px;
-  background: $color2;
+  background: $color4;
   color: rgba(255, 255, 255, 0.87);
   border-bottom: 1px solid $color8;
   font: 13px Helvetica, Arial, sans-serif;
 }
 
 .p-MenuBar-item.p-mod-active {
-  background: $color5;
+  background: $color8;
 }
 
 .p-MenuBar.p-mod-active .p-MenuBar-item.p-mod-active {
   z-index: 99999;
-  background: $color1;
-  border-left: 1px solid $color11;
-  border-right: 1px solid $color11;
+  background: $color4;
+  border-left: 1px solid $color16;
+  border-right: 1px solid $color16;
   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
 }
 
 
 .p-ScrollBar[data-orientation='horizontal'] {
-  border-top: 1px solid $color14;
+  border-top: 1px solid $color16;
 }
 
 .p-ScrollBar[data-orientation='vertical'] {
-  border-left: 1px solid $color14;
+  border-left: 1px solid $color16;
 }
 
 .p-ScrollBar-button {
@@ -187,11 +175,11 @@ background: $color6;
 }
 
 .p-ScrollBar-button:hover {
-  background-color: $color9;
+  background-color: $color16;
 }
 
 .p-ScrollBar-button.p-mod-active {
-  background-color: $color10;
+  background-color: $color16;
 }
 
 .p-ScrollBar-track {
@@ -199,35 +187,35 @@ background: $color6;
 }
 
 .p-ScrollBar-thumb {
-  background: $color10;
+  background: $color16;
 }
 
 .p-ScrollBar-thumb:hover {
-  background: $color13;
+  background: $color16;
 }
 
 .p-ScrollBar-thumb.p-mod-active {
-  background: $color14;
+  background: $color16;
 }
 
 
 .p-ScrollBar[data-orientation='horizontal'] .p-ScrollBar-thumb {
-  border-left: 1px solid $color14;
-  border-right: 1px solid $color14;
+  border-left: 1px solid $color16;
+  border-right: 1px solid $color16;
 }
 
 .p-ScrollBar[data-orientation='vertical'] .p-ScrollBar-thumb {
-  border-top: 1px solid $color14;
-  border-bottom: 1px solid $color14;
+  border-top: 1px solid $color16;
+  border-bottom: 1px solid $color16;
 }
 
 .p-TabBar-content {
-  border-bottom: 1px solid $color11;
+  border-bottom: 1px solid $color16;
 }
 
 .p-TabBar-tab {
-  background: $color5;
-  border: 1px solid $color11;
+  background: $color8;
+  border: 1px solid $color16;
 }
 
 .p-TabBar-tab.p-mod-current {
@@ -235,7 +223,7 @@ background: $color6;
 }
 
 .p-TabBar-tab:hover:not(.p-mod-current) {
-  background: $color1;
+  background: $color4;
 }
 
 .p-TabBar-tab.p-mod-drag-image {

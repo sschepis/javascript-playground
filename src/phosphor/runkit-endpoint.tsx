@@ -24,7 +24,7 @@ export default class RunkitEndpointWidget extends RedisplayableWidget {
     this.addClass('content')
     this.addClass('runkit-endpoint')
     this.title.label = 'Runkit Endpoint'
-    this.title.closable = false
+    this.title.closable = true
     this.title.caption = 'Runkit Endpoint'
   }
 
